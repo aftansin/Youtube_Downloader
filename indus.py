@@ -14,9 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def check(update: Update, context: CallbackContext):
-    pid = os.getgid()
-    update.message.reply_text(f'{update.message.text} The base URL is {context.bot.base_url}'
-                              f'with {pid}')
+    update.message.reply_text(f'The base URL is {context.bot.base_url}')
 
 
 def send_large_file(update, context):
@@ -27,8 +25,10 @@ def send_large_file(update, context):
 
 def main():
     updater = Updater('5605913205:AAEi20ubh7RK2PRA5F01XEjfP2Sr7mk2cAI',
-                      base_url='http://0.0.0.0:8081/bot'
+                      # base_url='http://localhost:8081/bot'
+
                       )
+
     # updater.bot.logOut()
     # a = updater.bot.logOut()
     # b = updater.bot.close()

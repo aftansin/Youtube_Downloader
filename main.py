@@ -1,25 +1,30 @@
-import os
 import random
 import string
+import logging
 
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.bot.api import TelegramAPIServer
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from dotenv import load_dotenv
+
 
 from youtube import download_video, delete_video
+from config import TELEGRAM_TOKEN, ADMIN_ID, CHAT_ID
 
-load_dotenv()
+logging.basicConfig(
+    format='%(asctime)s-%(name)s-%(levelname)s-%(message)s',
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
-TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 
-local_server = TelegramAPIServer.from_base('http://localhost:8081')
+local_server = TelegramAPIServer.from_base('http://localhost:8081/')
 
 bot = Bot(
     token=TELEGRAM_TOKEN,
     server=local_server
 )
 dp = Dispatcher(bot)
+
 
 keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
 button_help = KeyboardButton('/help')
@@ -28,7 +33,7 @@ keyboard.add(button_help).insert(button_desc)
 
 
 async def on_startup(_):
-    print('Я запустился!')
+    await bot.send_message(ADMIN_ID, f'Я запущен на сервере {bot.server.base}!')
 
 
 @dp.message_handler(commands=['start'])
@@ -43,15 +48,16 @@ async def help_command(message: types.Message):
     await message.delete()
 
 
+@dp.message_handler(commands=['check'])
+async def check_command(message: types.Message):
+    url = bot.server.base
+    await message.answer(text=str(url))
+
+
 @dp.message_handler(commands=['desc'])
 async def desc_command(message: types.Message):
     await message.answer(text='Описание бота.')
     await message.delete()
-
-
-@dp.message_handler(commands=['large'])
-async def desc_command(message: types.Message):
-    await bot.send_video(message.chat.id, open('temp.mp4', 'rb'), supports_streaming=True)
 
 
 @dp.message_handler()
@@ -62,6 +68,7 @@ async def youtube(message: types.Message):
         filename = download_video(link)
         await bot.send_video(message.chat.id, open(filename, 'rb', ), supports_streaming=True)
         delete_video(link)
+        await message.delete()
     else:
         await message.reply(text='Please, sent youtube link')
 
