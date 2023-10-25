@@ -8,9 +8,8 @@ from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 
-from handlers.help import help_router
-from handlers.start import start_router
-from handlers.video import video_router
+from handlers import start_router, help_router, video_router
+
 
 load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
