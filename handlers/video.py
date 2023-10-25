@@ -46,10 +46,11 @@ async def download_video_by_callback(callback: CallbackQuery):
             video_data = download_video(url, quality_id)
             file_name = video_data[0]
             title = video_data[1]
+            await status_msg.edit_text('Uploading... Wait.')
             video_from_pc = FSInputFile(f"Videos/{file_name}")
             await callback.message.answer_video(video_from_pc, caption=title)
-            await status_msg.delete()
             delete_video(file_name)
         except Exception as e:
             await callback.message.answer(str(e))
+        finally:
             await status_msg.delete()

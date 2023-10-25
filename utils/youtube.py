@@ -48,4 +48,8 @@ def list_formats(url):
 
 
 def delete_video(file_name):
-    os.remove(f'./Videos/{file_name}')
+    try:
+        os.remove(f'./Videos/{file_name}')
+        print('removed!!!')
+    except OSError:
+        pass
