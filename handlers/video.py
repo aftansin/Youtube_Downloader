@@ -2,7 +2,8 @@ from aiogram import Router, F, Bot
 from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, URLInputFile, CallbackQuery, FSInputFile
 from aiogram.utils.chat_action import ChatActionSender
 
-from utils.youtube import list_formats, download_video
+from utils import list_formats, download_video, delete_video
+
 
 video_router = Router()
 
@@ -48,6 +49,7 @@ async def download_video_by_callback(callback: CallbackQuery):
             video_from_pc = FSInputFile(f"Videos/{file_name}")
             await callback.message.answer_video(video_from_pc, caption=title)
             await status_msg.delete()
+            delete_video(file_name)
         except Exception as e:
             await callback.message.answer(str(e))
             await status_msg.delete()

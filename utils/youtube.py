@@ -1,4 +1,3 @@
-import json
 import os
 
 from yt_dlp import YoutubeDL

@@ -8,4 +8,4 @@ help_router = Router()
 
 @help_router.message(Command("help"))
 async def help_func(message: Message) -> None:
-    await message.reply('Скачаю видео с любого источника!!')
+    await message.reply('Can download video from many sources!!')

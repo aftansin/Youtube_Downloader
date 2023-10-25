@@ -16,8 +16,8 @@ load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 bot_commands = [
-    BotCommand(command='start', description='Начало работы'),
-    BotCommand(command='help', description='Справка')
+    BotCommand(command='start', description='Start the bot'),
+    BotCommand(command='help', description='Help info')
 ]
 
 

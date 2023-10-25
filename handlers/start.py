@@ -8,5 +8,5 @@ start_router = Router()
 
 @start_router.message(Command("start"))
 async def command_start_handler(message: Message) -> None:
-    await message.answer(f"Привет, <b>{message.from_user.full_name}!</b>\n"
-                         f"Пришли ссылку которую нужно скачать..")
+    await message.answer(f"Hi, <b>{message.from_user.full_name}!</b>\n"
+                         f"Send me the link you want to download..")
