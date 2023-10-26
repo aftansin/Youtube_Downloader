@@ -63,5 +63,6 @@ async def download_video_by_callback(callback: CallbackQuery):
         except Exception as e:
             await callback.message.reply(str(e))
         finally:
+            await callback.message.delete()
             await status_msg.delete()
             delete_video(file_name)
