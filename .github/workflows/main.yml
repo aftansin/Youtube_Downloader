@@ -1,0 +1,17 @@
+name: Youtube_Downloader
+
+on: [push]
+# Деплой на малинку
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing remote ssh commands to deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/Youtube_Downloader
+            git pull
