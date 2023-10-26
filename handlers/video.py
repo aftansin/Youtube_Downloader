@@ -2,10 +2,12 @@ from aiogram import Router, F, Bot
 from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, URLInputFile, CallbackQuery, FSInputFile
 from aiogram.utils.chat_action import ChatActionSender
 
+from middlewares import RegistrationCheck
 from utils import list_formats, download_video, delete_video
 
 
 video_router = Router()
+video_router.message.middleware(RegistrationCheck())
 
 
 def get_keyboard(formats, url):
