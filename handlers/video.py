@@ -20,7 +20,7 @@ def get_keyboard(formats, url):
     return keyboard
 
 
-@video_router.message(F.text)
+@video_router.message(F.text.startswith('https://www.youtube.com/') | F.text.startswith('https://youtu.be/'))
 async def get_video_format_handler(message: Message, bot: Bot) -> None:
     """Отправка сообщения доступных для скачивания форматов видео."""
     async with ChatActionSender.typing(chat_id=message.chat.id, bot=bot):
@@ -29,7 +29,7 @@ async def get_video_format_handler(message: Message, bot: Bot) -> None:
         video_data = list_formats(url)
         if isinstance(video_data, Exception):  # Если при обработке выскочило исключение, то отправим ошибку
             await status_msg.delete()
-            await message.answer(str(video_data))
+            await message.answer('Something went wrong.. Try again')
             return
         title = video_data[0]
         thumbnail = video_data[1]
