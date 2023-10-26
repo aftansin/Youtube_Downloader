@@ -27,6 +27,10 @@ async def get_video_format_handler(message: Message, bot: Bot) -> None:
         status_msg = await message.answer('Getting info... Wait.')
         url = message.text
         video_data = list_formats(url)
+        if isinstance(video_data, Exception):  # Если при обработке выскочило исключение, то отправим ошибку
+            await status_msg.delete()
+            await message.answer(str(video_data))
+            return
         title = video_data[0]
         thumbnail = video_data[1]
         description = video_data[2]
