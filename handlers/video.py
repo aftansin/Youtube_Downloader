@@ -20,7 +20,9 @@ def get_keyboard(formats, url):
     return keyboard
 
 
-@video_router.message(F.text.startswith('https://www.youtube.com/', 'https://youtu.be/', 'https://youtube.com/'))
+@video_router.message(F.text.startswith('https://www.youtube.com/') |
+                      F.text.startswith('https://youtu.be/') |
+                      F.text.startswith('https://youtube.com/'))
 async def get_video_format_handler(message: Message, bot: Bot) -> None:
     """Отправка сообщения доступных для скачивания форматов видео."""
     async with ChatActionSender.typing(chat_id=message.chat.id, bot=bot):
