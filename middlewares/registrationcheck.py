@@ -2,7 +2,7 @@ from typing import Dict, Any
 
 from aiogram import BaseMiddleware
 from aiogram.types import Message
-from sqlalchemy import text
+from sqlalchemy import select
 
 from db import User
 
@@ -13,8 +13,9 @@ class RegistrationCheck(BaseMiddleware):
         async with async_session() as session:
             async with session.begin():
                 user_id = event.from_user.id
-                response = await session.execute(text(f"select * from user where user_id = {user_id};"))
-                user = response.one_or_none()
+                statement = select(User).filter_by(user_id=user_id)
+                response = await session.execute(statement)
+                user = response.scalar()
                 if user and user.allowed:
                     return await handler(event, data)
                 elif user and not user.allowed:
