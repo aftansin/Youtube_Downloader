@@ -1,7 +1,7 @@
 name: Youtube_Downloader
 
 on: [push]
-# Деплой на малинку
+# Деплой на AEZA
 jobs:
   deploy:
     runs-on: ubuntu-latest
