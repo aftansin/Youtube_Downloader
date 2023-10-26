@@ -9,6 +9,7 @@ video_router = Router()
 
 
 def get_keyboard(formats, url):
+    """Генерация инлайн кнопок доступных для скачивания форматов."""
     buttons = []
     for data in formats:
         txt = data.get('format')[5:]
@@ -21,7 +22,9 @@ def get_keyboard(formats, url):
 
 @video_router.message(F.text)
 async def get_video_format_handler(message: Message, bot: Bot) -> None:
+    """Отправка сообщения доступных для скачивания форматов видео."""
     async with ChatActionSender.typing(chat_id=message.chat.id, bot=bot):
+        status_msg = await message.answer('Getting info... Wait.')
         url = message.text
         video_data = list_formats(url)
         title = video_data[0]
@@ -33,10 +36,12 @@ async def get_video_format_handler(message: Message, bot: Bot) -> None:
         await message.reply_photo(URLInputFile(thumbnail),
                                   caption=txt,
                                   reply_markup=get_keyboard(formats, url))
+        await status_msg.delete()
 
 
 @video_router.callback_query(F.data)
 async def download_video_by_callback(callback: CallbackQuery):
+    """Обработка callback сообщения, загрузка и отправка видео пользователю."""
     async with ChatActionSender.upload_video(chat_id=callback.message.chat.id, bot=callback.bot):
         status_msg = await callback.message.answer('Downloading... Wait.')
         await callback.answer()
@@ -49,8 +54,8 @@ async def download_video_by_callback(callback: CallbackQuery):
             await status_msg.edit_text('Uploading... Wait.')
             video_from_pc = FSInputFile(f"Videos/{file_name}")
             await callback.message.answer_video(video_from_pc, caption=title)
-            delete_video(file_name)
         except Exception as e:
-            await callback.message.answer(str(e))
+            await callback.message.reply(str(e))
         finally:
             await status_msg.delete()
+            delete_video(file_name)

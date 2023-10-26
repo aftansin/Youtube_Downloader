@@ -22,6 +22,8 @@ bot_commands = [
 
 async def main() -> None:
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
+    # logout = await bot.log_out()
+    # print(logout)
     await bot.set_my_commands(commands=bot_commands)
     dp = Dispatcher()
     dp.include_routers(start_router, help_router, video_router)

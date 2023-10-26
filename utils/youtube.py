@@ -4,7 +4,12 @@ from yt_dlp import YoutubeDL
 
 
 def download_video(url: str, format_id):
-    ydl_opts = {'format': str(format_id), 'outtmpl': 'Videos/%(id)s.%(ext)s'}
+    """Загружает видео в папку, и возвращает информация о файле и видео.
+    Либо вернет исключение"""
+    ydl_opts = {'format': str(format_id),
+                'outtmpl': 'Videos/%(id)s.%(ext)s',
+                'quiet': True,
+                'no_warnings': True}
     try:
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
@@ -48,6 +53,7 @@ def list_formats(url):
 
 
 def delete_video(file_name):
+    """Удаляет файл"""
     try:
         os.remove(f'./Videos/{file_name}')
     except OSError:
