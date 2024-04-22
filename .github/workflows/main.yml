@@ -13,5 +13,5 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ~/Youtube_Downloader
+            cd ~/Documents/Youtube_Downloader
             git pull
