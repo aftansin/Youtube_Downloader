@@ -40,7 +40,7 @@ async def get_video_format_handler(message: Message, bot: Bot) -> None:
         description = video_data[2]
         duration = video_data[3]
         formats = video_data[4]
-        txt = f'{title}\n<u>Duration: {duration}</u>'
+        txt = f'{title}\nDuration: {duration}'
         await message.reply_photo(URLInputFile(thumbnail),
                                   caption=txt,
                                   reply_markup=get_keyboard(formats, url))

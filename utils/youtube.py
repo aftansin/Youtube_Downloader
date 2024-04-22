@@ -41,6 +41,7 @@ def list_formats(url):
     thumbnail = meta.get('thumbnail')
     description = meta.get('description')
     duration = meta.get('duration_string')
+    print(formats)
     for f in formats:
         video_codec = f.get('vcodec')
         audio_codec = f.get('acodec')
