@@ -14,6 +14,7 @@ def get_keyboard(formats, url):
     """Генерация инлайн кнопок доступных для скачивания форматов."""
     buttons = []
     for data in formats:
+        print(data)
         txt = data.get('format')[5:]
         call_data = data.get('format_id') + f' {url}'
         buttons.append([InlineKeyboardButton(text=txt, callback_data=call_data)])
