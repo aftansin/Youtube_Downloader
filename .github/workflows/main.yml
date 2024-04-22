@@ -1,7 +1,7 @@
 name: Youtube_Downloader
 
 on: [push]
-# Деплой на AEZA
+# Деплой на Pi5
 jobs:
   deploy:
     runs-on: ubuntu-latest
