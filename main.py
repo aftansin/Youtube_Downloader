@@ -2,6 +2,8 @@ import asyncio
 import logging
 import os
 
+from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.telegram import TelegramAPIServer
 from aiogram.types import BotCommand
 from dotenv import load_dotenv
 
@@ -22,7 +24,9 @@ bot_commands = [
 
 
 async def main() -> None:
-    bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
+    api_server = TelegramAPIServer.from_base('http://localhost:8081')
+
+    bot = Bot(TOKEN, parse_mode=ParseMode.HTML, session=AiohttpSession(api=api_server))
     # logout = await bot.log_out()
     # print(logout)
     await bot.set_my_commands(commands=bot_commands)
