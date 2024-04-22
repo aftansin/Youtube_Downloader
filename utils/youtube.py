@@ -6,8 +6,7 @@ from yt_dlp import YoutubeDL
 def download_video(url: str, format_id):
     """Загружает видео в папку, и возвращает информация о файле и видео.
     Либо вернет исключение"""
-    ydl_opts = {'format': 'best',
-                # 'format': str(format_id),
+    ydl_opts = {'format': 'best[ext=mp4]',
                 'outtmpl': 'Videos/%(id)s.%(ext)s',
                 'quiet': True,
                 'no_warnings': True}
