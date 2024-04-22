@@ -44,11 +44,15 @@ def list_formats(url):
     for f in formats:
         video_codec = f.get('vcodec')
         audio_codec = f.get('acodec')
-        if video_codec != 'none' and audio_codec != 'none':
-            format_id = f.get('format_id')
-            format_note = f.get('format_note')
-            format_full = f.get('format')
-            required_formats.append({'format_id': format_id, 'format_note': format_note, 'format': format_full})
+        format_id = f.get('format_id')
+        format_note = f.get('format_note')
+        format_full = f.get('format')
+        required_formats.append({'format_id': format_id, 'format_note': format_note, 'format': format_full})
+        # if video_codec != 'none' and audio_codec != 'none':
+        #     format_id = f.get('format_id')
+        #     format_note = f.get('format_note')
+        #     format_full = f.get('format')
+        #     required_formats.append({'format_id': format_id, 'format_note': format_note, 'format': format_full})
     return title, thumbnail, description, duration, required_formats
 
 
