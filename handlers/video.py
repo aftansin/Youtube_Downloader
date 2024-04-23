@@ -13,11 +13,9 @@ video_router.message.middleware(RegistrationCheck())
 def get_keyboard(formats, url):
     """Генерация инлайн кнопок доступных для скачивания форматов."""
     buttons = []
-    for data in formats:
-        print(data)
-        txt = data.get('format')[5:]
-        call_data = data.get('format_id') + f' {url}'
-        buttons.append([InlineKeyboardButton(text=txt, callback_data=call_data)])
+    for format_data in formats:
+        callback_data = format_data + f' {url}'
+        buttons.append([InlineKeyboardButton(text=format_data, callback_data=callback_data)])
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
     return keyboard
@@ -38,7 +36,6 @@ async def get_video_format_handler(message: Message, bot: Bot) -> None:
             return
         title = video_data[0]
         thumbnail = video_data[1]
-        description = video_data[2]
         duration = video_data[3]
         formats = video_data[4]
         txt = f'{title}\nDuration: {duration}'
@@ -55,7 +52,7 @@ async def download_video_by_callback(callback: CallbackQuery):
         status_msg = await callback.message.answer('Downloading... Wait.')
         await callback.answer()
         action = callback.data.split()
-        quality_id, url = action[0], action[1]
+        quality_id, url = action[0][:-1], action[1]
         try:
             video_data = download_file(url, quality_id)
             file_name = video_data[0]

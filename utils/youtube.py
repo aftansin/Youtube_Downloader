@@ -33,9 +33,7 @@ def download_file(url: str, format_id: str):
 def list_formats(url):
     """Возвращает список доступных форматов для скачивания (под индексом 4). Исключаются
     форматы без видео или аудио. Или вернет исключение yt_dlp.utils.DownloadError.
-    Под индексами 0, 1, 2, 3 - Общая информация о видео.
-    [{format_id: int, format_note: str, format: str}, ...]
-    [{format_id: 22, format_note: 720p, format: 22 - 1280x720 (720p)}, ...]"""
+    Под индексами 0, 1, 2, 3 - Общая информация о видео."""
     ydl_opts = {}
     try:
         with YoutubeDL(ydl_opts) as ydl:
@@ -49,17 +47,9 @@ def list_formats(url):
     description = meta.get('description')
     duration = meta.get('duration_string')
     for f in formats:
-        video_codec = f.get('vcodec')
-        audio_codec = f.get('acodec')
-        format_id = f.get('format_id')
         format_note = f.get('format_note')
-        format_full = f.get('format')
-        required_formats.append({'format_id': format_id, 'format_note': format_note, 'format': format_full})
-        # if video_codec != 'none' and audio_codec != 'none':
-        #     format_id = f.get('format_id')
-        #     format_note = f.get('format_note')
-        #     format_full = f.get('format')
-        #     required_formats.append({'format_id': format_id, 'format_note': format_note, 'format': format_full})
+        if format_note and format_note[:3].isdigit() and format_note not in required_formats:
+            required_formats.append(format_note)
     return title, thumbnail, description, duration, required_formats
 
 
