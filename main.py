@@ -4,6 +4,7 @@ import os
 
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.telegram import TelegramAPIServer
+from aiogram.methods import DeleteWebhook
 from aiogram.types import BotCommand
 from dotenv import load_dotenv
 
@@ -36,6 +37,7 @@ async def main() -> None:
     async_engine = get_async_engine("sqlite+aiosqlite:///users.db")
     session_maker = get_session_maker(async_engine)
     await update_schemas(async_engine, BaseModel.metadata)
+    await bot(DeleteWebhook(drop_pending_updates=True))
     await dp.start_polling(bot, session_maker=session_maker)
 
 
