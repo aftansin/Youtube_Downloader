@@ -12,7 +12,7 @@ video_router.message.middleware(RegistrationCheck())
 
 def get_keyboard(formats, url):
     """Генерация инлайн кнопок доступных для скачивания форматов."""
-    buttons = []
+    buttons = [[InlineKeyboardButton(text='audio only', callback_data=f'audio {url}')]]
     for format_data in formats:
         callback_data = format_data + f' {url}'
         buttons.append([InlineKeyboardButton(text=format_data, callback_data=callback_data)])

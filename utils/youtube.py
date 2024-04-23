@@ -13,7 +13,7 @@ def download_file(url: str, format_id: str):
                     'no_warnings': True}
     else:
         ydl_opts = {'format': f'bv*[height<={format_id}]+ba/b',
-                    'outtmpl': 'Videos/%(id)s.%(ext)s',
+                    'outtmpl': 'Videos/%(id)s.mp4',
                     # 'progress_hooks': [progress],
                     'quiet': True,
                     'no_warnings': True}
