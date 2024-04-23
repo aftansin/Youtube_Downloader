@@ -3,7 +3,7 @@ from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, U
 from aiogram.utils.chat_action import ChatActionSender
 
 from middlewares import RegistrationCheck
-from utils import list_formats, download_video, delete_video
+from utils import list_formats, download_file, delete_video
 
 
 video_router = Router()
@@ -57,7 +57,7 @@ async def download_video_by_callback(callback: CallbackQuery):
         action = callback.data.split()
         quality_id, url = action[0], action[1]
         try:
-            video_data = download_video(url, quality_id)
+            video_data = download_file(url, quality_id)
             file_name = video_data[0]
             title = video_data[1]
             await status_msg.edit_text('Uploading... Wait.')

@@ -3,13 +3,20 @@ import os
 from yt_dlp import YoutubeDL
 
 
-def download_video(url: str, format_id):
+def download_file(url: str, format_id: str):
     """Загружает видео в папку, и возвращает информация о файле и видео.
     Либо вернет исключение"""
-    ydl_opts = {'format': 'best[ext=mp4]',
-                'outtmpl': 'Videos/%(id)s.%(ext)s',
-                'quiet': True,
-                'no_warnings': True}
+    if format_id == 'audio':
+        ydl_opts = {'format': 'm4a/bestaudio/best',
+                    'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'm4a'}],
+                    'quiet': True,
+                    'no_warnings': True}
+    else:
+        ydl_opts = {'format': f'bv*[height<={format_id}]+ba/b',
+                    'outtmpl': 'Videos/%(id)s.%(ext)s',
+                    # 'progress_hooks': [progress],
+                    'quiet': True,
+                    'no_warnings': True}
     try:
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
