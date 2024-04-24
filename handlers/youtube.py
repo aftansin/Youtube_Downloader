@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor
+
 from aiogram import Router, F, Bot
 from aiogram.types import Message, FSInputFile
 from aiogram.utils.chat_action import ChatActionSender
@@ -5,6 +7,9 @@ from aiogram.utils.chat_action import ChatActionSender
 from db.requests import get_user
 from middlewares import RegistrationCheck
 from utils.ytdlp_functions import download_file, delete_file
+
+
+executor = ThreadPoolExecutor()
 
 video_router = Router()
 video_router.message.middleware(RegistrationCheck())
@@ -18,7 +23,7 @@ async def send_file(message: Message, bot: Bot, db_session) -> None:
     status_msg = await message.answer('Downloading... Wait.')
     url = message.text
     try:
-        all_video_data = download_file(url, db_user.quality)
+        all_video_data = executor.submit(download_file, url, db_user.quality).result()
     except Exception as e:
         await message.answer(str(e))
         return
