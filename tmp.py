@@ -40,3 +40,20 @@ with YoutubeDL(ydl_opts) as ydl:
     resolution_info = info.get('format')
     thumbnail_url = info.get('thumbnail')
     ydl.list_formats(info)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
