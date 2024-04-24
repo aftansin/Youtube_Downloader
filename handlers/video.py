@@ -30,7 +30,7 @@ async def send_file(message: Message, bot: Bot, db_session) -> None:
             print(duration)
             print(width)
             print(height)
-            print(thumbnail)
+            # print(thumbnail)
             print(caption)
             await status_msg.edit_text('Uploading... Wait.')
             video_from_pc = FSInputFile(f"Videos/{file_name}")
@@ -39,7 +39,7 @@ async def send_file(message: Message, bot: Bot, db_session) -> None:
                 duration=duration,
                 width=width,
                 height=height,
-                thumbnail=thumbnail,
+                # thumbnail=thumbnail,
                 caption=title)
         except Exception as e:
             await message.reply(str(e))
