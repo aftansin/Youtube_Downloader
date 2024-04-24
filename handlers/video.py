@@ -1,5 +1,5 @@
 from aiogram import Router, F, Bot
-from aiogram.types import Message, FSInputFile
+from aiogram.types import Message, FSInputFile, URLInputFile
 from aiogram.utils.chat_action import ChatActionSender
 
 from db.requests import get_user
@@ -25,7 +25,7 @@ async def send_file(message: Message, bot: Bot, db_session) -> None:
             duration = all_video_data.get('duration')
             width = all_video_data.get('width')
             height = all_video_data.get('height')
-            thumbnail = all_video_data.get('thumbnail')
+            thumbnail_url = all_video_data.get('thumbnail')
             caption = all_video_data.get('caption')
             print(duration)
             print(width)
@@ -39,7 +39,7 @@ async def send_file(message: Message, bot: Bot, db_session) -> None:
                 duration=duration,
                 width=width,
                 height=height,
-                # thumbnail=thumbnail,
+                thumbnail=URLInputFile(thumbnail_url),
                 caption=title)
         except Exception as e:
             await message.reply(str(e))
