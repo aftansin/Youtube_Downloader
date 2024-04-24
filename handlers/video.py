@@ -16,6 +16,25 @@ async def send_file(message: Message, db_session) -> None:
     db_user = await get_user(message.from_user.id, db_session)
     status_msg = await message.answer('Downloading... Wait.')
     url = message.text
+    # отправка аудио, если выбран данный формат
+    if db_user.quality == 'mp3':
+        try:
+            all_video_data = download_file(url, db_user.quality)
+            file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
+            title = all_video_data.get('title')
+            await status_msg.edit_text('Uploading... Wait.')
+            audio_from_pc = FSInputFile(f"Videos/{file_name}")
+            await message.answer_audio(
+                audio=audio_from_pc,
+                caption=title)
+            delete_file(file_name)
+        except Exception as e:
+            await message.reply('ошибка в аудио', str(e))
+        finally:
+            await status_msg.delete()
+        return
+
+    # отправка видео файла
     try:
         all_video_data = download_file(url, db_user.quality)
         file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
@@ -33,6 +52,6 @@ async def send_file(message: Message, db_session) -> None:
             caption=title)
         delete_file(file_name)
     except Exception as e:
-        await message.reply(str(e))
+        await message.reply('ошибка в видео', str(e))
     finally:
         await status_msg.delete()
