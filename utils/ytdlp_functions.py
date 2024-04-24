@@ -4,7 +4,7 @@ from yt_dlp import YoutubeDL
 
 
 def download_file(url: str, format_id: str):
-    if format_id == 'mp3':
+    if format_id == 'audio':
         ydl_opts = {'format': 'm4a/bestaudio/best',
                     'outtmpl': 'Videos/%(id)s.%(ext)s',
                     'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'm4a'}],

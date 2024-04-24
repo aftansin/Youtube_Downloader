@@ -17,14 +17,14 @@ async def send_file(message: Message, db_session) -> None:
     status_msg = await message.answer('Downloading... Wait.')
     url = message.text
     # отправка аудио, если выбран данный формат
-    if db_user.quality == 'mp3':
+    if db_user.quality == 'audio':
         try:
             all_video_data = download_file(url, db_user.quality)
             file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
             title = all_video_data.get('title')
             await status_msg.edit_text('Uploading... Wait.')
             audio_from_pc = FSInputFile(f"Videos/{file_name}")
-            await message.answer_audio(
+            await message.reply_audio(
                 audio=audio_from_pc,
                 caption=title)
             delete_file(file_name)
@@ -44,7 +44,7 @@ async def send_file(message: Message, db_session) -> None:
         height = all_video_data.get('height')
         await status_msg.edit_text('Uploading... Wait.')
         video_from_pc = FSInputFile(f"Videos/{file_name}")
-        await message.answer_video(
+        await message.reply_video(
             video=video_from_pc,
             duration=duration,
             width=width,
