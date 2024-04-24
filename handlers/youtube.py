@@ -14,28 +14,36 @@ video_router.message.middleware(RegistrationCheck())
                       F.text.startswith('https://youtu.be/') |
                       F.text.startswith('https://youtube.com/'))
 async def send_file(message: Message, bot: Bot, db_session) -> None:
+    db_user = await get_user(message.from_user.id, db_session)
+    status_msg = await message.answer('Downloading... Wait.')
+    url = message.text
     try:
-        db_user = await get_user(message.from_user.id, db_session)
-        status_msg = await message.answer('Downloading... Wait.')
-        url = message.text
-
         all_video_data = download_file(url, db_user.quality)
-        file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
-        title = all_video_data.get('title')
-        file_from_pc = FSInputFile(f"Videos/{file_name}")
+    except Exception as e:
+        await message.answer(str(e))
+        return
+    file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
+    title = all_video_data.get('title')
+    file_from_pc = FSInputFile(f"Videos/{file_name}")
 
-        if db_user.quality == 'audio':
-            await status_msg.edit_text('Uploading... Wait.')
+    if db_user.quality == 'audio':
+        try:
             async with ChatActionSender.upload_document(message.chat.id, bot):
                 await message.reply_audio(
                     audio=file_from_pc,
                     caption=title)
-        # отправка видео файла
-        else:
-            duration = all_video_data.get('duration')
-            width = all_video_data.get('width')
-            height = all_video_data.get('height')
-            await status_msg.edit_text('Uploading... Wait.')
+        except Exception as e:
+            await message.answer(str(e))
+            return
+        finally:
+            await status_msg.delete()
+            await delete_file(file_name)
+    # отправка видео файла
+    else:
+        duration = all_video_data.get('duration')
+        width = all_video_data.get('width')
+        height = all_video_data.get('height')
+        try:
             async with ChatActionSender.upload_video(message.chat.id, bot):
                 await message.reply_video(
                     video=file_from_pc,
@@ -43,8 +51,9 @@ async def send_file(message: Message, bot: Bot, db_session) -> None:
                     width=width,
                     height=height,
                     caption=title)
-    except Exception as e:
-        await message.reply(str(e))
-    finally:
-        await status_msg.delete()
-        await delete_file(file_name)
+        except Exception as e:
+            await message.answer(str(e))
+            return
+        finally:
+            await status_msg.delete()
+            await delete_file(file_name)
