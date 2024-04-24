@@ -3,7 +3,7 @@ import os
 from yt_dlp import YoutubeDL
 
 
-async def download_file(url: str, format_id: str):
+def download_file(url: str, format_id: str):
     if format_id == 'audio':
         ydl_opts = {'format': 'm4a/bestaudio/best',
                     'outtmpl': 'Videos/%(id)s.%(ext)s',

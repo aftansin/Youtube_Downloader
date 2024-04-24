@@ -21,7 +21,7 @@ async def send_file(message: Message, bot: Bot, db_session) -> None:
     if db_user.quality == 'audio':
         try:
             async with ChatActionSender.upload_document(message.chat.id, bot):
-                all_video_data = await download_file(url, db_user.quality)
+                all_video_data = download_file(url, db_user.quality)
                 file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
                 title = all_video_data.get('title')
                 await status_msg.edit_text('Uploading... Wait.')
@@ -39,7 +39,7 @@ async def send_file(message: Message, bot: Bot, db_session) -> None:
     # отправка видео файла
     try:
         async with ChatActionSender.upload_video(message.chat.id, bot):
-            all_video_data = await download_file(url, db_user.quality)
+            all_video_data = download_file(url, db_user.quality)
             file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
             title = all_video_data.get('title')
             duration = all_video_data.get('duration')
