@@ -30,7 +30,7 @@ async def main() -> None:
     bot = Bot(
         TOKEN,
         parse_mode=ParseMode.HTML,
-        # session=AiohttpSession(api=api_server)
+        session=AiohttpSession(api=api_server)
     )
     await bot.set_my_commands(commands=bot_commands)
     dp = Dispatcher()
