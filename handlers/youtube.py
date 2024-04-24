@@ -19,7 +19,7 @@ async def send_file(message: Message, db_session) -> None:
     # отправка аудио, если выбран данный формат
     if db_user.quality == 'audio':
         try:
-            all_video_data = download_file(url, db_user.quality)
+            all_video_data = await download_file(url, db_user.quality)
             file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
             title = all_video_data.get('title')
             await status_msg.edit_text('Uploading... Wait.')
@@ -27,7 +27,7 @@ async def send_file(message: Message, db_session) -> None:
             await message.reply_audio(
                 audio=audio_from_pc,
                 caption=title)
-            delete_file(file_name)
+            await delete_file(file_name)
         except Exception as e:
             await message.reply('ошибка в аудио', str(e))
         finally:
@@ -36,7 +36,7 @@ async def send_file(message: Message, db_session) -> None:
 
     # отправка видео файла
     try:
-        all_video_data = download_file(url, db_user.quality)
+        all_video_data = await download_file(url, db_user.quality)
         file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
         title = all_video_data.get('title')
         duration = all_video_data.get('duration')
@@ -50,7 +50,7 @@ async def send_file(message: Message, db_session) -> None:
             width=width,
             height=height,
             caption=title)
-        delete_file(file_name)
+        await delete_file(file_name)
     except Exception as e:
         await message.reply('ошибка в видео', str(e))
     finally:
