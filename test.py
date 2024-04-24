@@ -17,6 +17,10 @@ ydl_opts = {'format': f'bv*[height<={FORMAT}][ext=mp4][vcodec~="^((he|a)vc|h26[4
 
 
 with YoutubeDL(ydl_opts) as ydl:
-    info = ydl.extract_info(URL_BIG, download=True)
+    info = ydl.extract_info(URL_SMALL, download=True)
     ydl.list_formats(info)
+    width = info.get('width')
+    height = info.get('height')
+    print(width)
+    print(height)
 
