@@ -39,7 +39,7 @@ async def main() -> None:
     session_maker = get_session_maker(async_engine)
     await update_schemas(async_engine, BaseModel.metadata)
     await bot(DeleteWebhook(drop_pending_updates=True))
-    await dp.start_polling(bot, db_session=session_maker)
+    await dp.start_polling(bot, polling_timeout=99999, db_session=session_maker)
 
 
 if __name__ == "__main__":
