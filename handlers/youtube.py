@@ -20,16 +20,16 @@ async def send_file(message: Message, bot: Bot, db_session) -> None:
     # отправка аудио, если выбран данный формат
     if db_user.quality == 'audio':
         try:
+            all_video_data = download_file(url, db_user.quality)
+            file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
+            title = all_video_data.get('title')
+            await status_msg.edit_text('Uploading... Wait.')
+            audio_from_pc = FSInputFile(f"Videos/{file_name}")
             async with ChatActionSender.upload_document(message.chat.id, bot):
-                all_video_data = download_file(url, db_user.quality)
-                file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
-                title = all_video_data.get('title')
-                await status_msg.edit_text('Uploading... Wait.')
-                audio_from_pc = FSInputFile(f"Videos/{file_name}")
                 await message.reply_audio(
                     audio=audio_from_pc,
                     caption=title)
-                await delete_file(file_name)
+            await delete_file(file_name)
         except Exception as e:
             await message.reply(f'ошибка в аудио\n{str(e)}')
         finally:
@@ -38,22 +38,22 @@ async def send_file(message: Message, bot: Bot, db_session) -> None:
 
     # отправка видео файла
     try:
+        all_video_data = download_file(url, db_user.quality)
+        file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
+        title = all_video_data.get('title')
+        duration = all_video_data.get('duration')
+        width = all_video_data.get('width')
+        height = all_video_data.get('height')
+        await status_msg.edit_text('Uploading... Wait.')
+        video_from_pc = FSInputFile(f"Videos/{file_name}")
         async with ChatActionSender.upload_video(message.chat.id, bot):
-            all_video_data = download_file(url, db_user.quality)
-            file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
-            title = all_video_data.get('title')
-            duration = all_video_data.get('duration')
-            width = all_video_data.get('width')
-            height = all_video_data.get('height')
-            await status_msg.edit_text('Uploading... Wait.')
-            video_from_pc = FSInputFile(f"Videos/{file_name}")
             await message.reply_video(
                 video=video_from_pc,
                 duration=duration,
                 width=width,
                 height=height,
                 caption=title)
-            await delete_file(file_name)
+        await delete_file(file_name)
     except Exception as e:
         await message.reply(f'ошибка в видео\n{str(e)}')
     finally:
