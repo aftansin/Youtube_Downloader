@@ -31,7 +31,7 @@ async def send_file(message: Message, bot: Bot, db_session) -> None:
                     caption=title)
                 await delete_file(file_name)
         except Exception as e:
-            await message.reply('ошибка в аудио', str(e))
+            await message.reply(f'ошибка в аудио\n{str(e)}')
         finally:
             await status_msg.delete()
         return
@@ -55,6 +55,6 @@ async def send_file(message: Message, bot: Bot, db_session) -> None:
                 caption=title)
             await delete_file(file_name)
     except Exception as e:
-        await message.reply('ошибка в видео', str(e))
+        await message.reply(f'ошибка в видео\n{str(e)}')
     finally:
         await status_msg.delete()
