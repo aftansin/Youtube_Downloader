@@ -13,14 +13,15 @@ from aiogram.enums import ParseMode
 
 from db import BaseModel, get_async_engine, get_session_maker, update_schemas
 from handlers import start_router, help_router, video_router
-
+from handlers.account import account_router
 
 load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 bot_commands = [
-    BotCommand(command='start', description='Start the bot'),
-    BotCommand(command='help', description='Help info')
+    BotCommand(command='start', description='Restart the bot'),
+    BotCommand(command='help', description='Help info'),
+    BotCommand(command='account', description='Account info')
 ]
 
 
@@ -33,12 +34,12 @@ async def main() -> None:
     )
     await bot.set_my_commands(commands=bot_commands)
     dp = Dispatcher()
-    dp.include_routers(start_router, help_router, video_router)
+    dp.include_routers(start_router, help_router, account_router,  video_router)
     async_engine = get_async_engine("sqlite+aiosqlite:///users.db")
     session_maker = get_session_maker(async_engine)
     await update_schemas(async_engine, BaseModel.metadata)
     await bot(DeleteWebhook(drop_pending_updates=True))
-    await dp.start_polling(bot, session_maker=session_maker)
+    await dp.start_polling(bot, db_session=session_maker)
 
 
 if __name__ == "__main__":

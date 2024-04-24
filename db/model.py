@@ -15,6 +15,7 @@ class User(BaseModel):
     username = Column(VARCHAR(32), unique=False, nullable=True)
     reg_date = Column(DATE, default=datetime.date.today())
     allowed = Column(BOOLEAN, default=False, nullable=False)
+    quality = Column(VARCHAR(10), default='720p', nullable=False)
 
     def __str__(self) -> str:
         return f'<User: {self.user_id}>'
