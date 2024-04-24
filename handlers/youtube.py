@@ -1,5 +1,3 @@
-from concurrent.futures import ThreadPoolExecutor
-
 from aiogram import Router, F, Bot
 from aiogram.types import Message, FSInputFile
 from aiogram.utils.chat_action import ChatActionSender
@@ -9,8 +7,6 @@ from middlewares import RegistrationCheck
 from utils.ytdlp_functions import download_file, delete_file
 
 
-executor = ThreadPoolExecutor()
-
 video_router = Router()
 video_router.message.middleware(RegistrationCheck())
 
@@ -18,47 +14,27 @@ video_router.message.middleware(RegistrationCheck())
 @video_router.message(F.text.startswith('https://www.youtube.com/') |
                       F.text.startswith('https://youtu.be/') |
                       F.text.startswith('https://youtube.com/'))
-async def send_file(message: Message, bot: Bot, db_session) -> None:
+async def send_video(message: Message, bot: Bot, db_session) -> None:
     db_user = await get_user(message.from_user.id, db_session)
     status_msg = await message.answer('Downloading... Wait.')
     url = message.text
     try:
-        all_video_data = executor.submit(download_file, url, db_user.quality).result()
-    except Exception as e:
-        await message.answer(str(e))
-        return
-    file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
-    title = all_video_data.get('title')
-    file_from_pc = FSInputFile(f"Videos/{file_name}")
-
-    if db_user.quality == 'audio':
-        try:
-            async with ChatActionSender.upload_document(message.chat.id, bot):
-                await message.reply_audio(
-                    audio=file_from_pc,
-                    caption=title)
-        except Exception as e:
-            await message.answer(str(e))
-            return
-        finally:
-            await status_msg.delete()
-            await delete_file(file_name)
-    # отправка видео файла
-    else:
+        all_video_data = download_file(url, db_user.quality)
+        file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
+        title = all_video_data.get('title')
+        file_from_pc = FSInputFile(f"Videos/{file_name}")
         duration = all_video_data.get('duration')
         width = all_video_data.get('width')
         height = all_video_data.get('height')
-        try:
-            async with ChatActionSender.upload_video(message.chat.id, bot):
-                await message.reply_video(
-                    video=file_from_pc,
-                    duration=duration,
-                    width=width,
-                    height=height,
-                    caption=title)
-        except Exception as e:
-            await message.answer(str(e))
-            return
-        finally:
-            await status_msg.delete()
-            await delete_file(file_name)
+        async with ChatActionSender.upload_video(message.chat.id, bot):
+            await message.reply_video(
+                video=file_from_pc,
+                duration=duration,
+                width=width,
+                height=height,
+                caption=title)
+        await delete_file(file_name)
+    except Exception as e:
+        await message.answer(str(e))
+    finally:
+        await status_msg.delete()
