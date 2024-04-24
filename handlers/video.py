@@ -19,12 +19,28 @@ async def send_file(message: Message, bot: Bot, db_session) -> None:
         status_msg = await message.answer('Downloading... Wait.')
         url = message.text
         try:
-            video_data = download_file(url, db_user.quality)
-            file_name = f'{video_data.get("id")}.{video_data.get("ext")}'
-            title = video_data.get('title')
+            all_video_data = download_file(url, db_user.quality)
+            file_name = f'{all_video_data.get("id")}.{all_video_data.get("ext")}'
+            title = all_video_data.get('title')
+            duration = all_video_data.get('duration')
+            width = all_video_data.get('width')
+            height = all_video_data.get('height')
+            thumbnail = all_video_data.get('thumbnail')
+            caption = all_video_data.get('caption')
+            print(duration)
+            print(width)
+            print(height)
+            print(thumbnail)
+            print(caption)
             await status_msg.edit_text('Uploading... Wait.')
             video_from_pc = FSInputFile(f"Videos/{file_name}")
-            await message.reply_video(video_from_pc, caption=title)
+            await message.reply_video(
+                video=video_from_pc,
+                duration=duration,
+                width=width,
+                height=height,
+                thumbnail=thumbnail,
+                caption=title)
         except Exception as e:
             await message.reply(str(e))
         finally:
