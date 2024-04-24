@@ -22,13 +22,12 @@ async def command_account_handler(message: Message, db_session) -> None:
            f'Качество видео: {user.quality}\n'
            f'Изменить качество скачивания: ')
     available_buttons = [
-        [InlineKeyboardButton(text=f"audio", callback_data=f"qlt audio"),
-         InlineKeyboardButton(text=f"480p", callback_data=f"qlt 480p"),
+        [InlineKeyboardButton(text=f"480p", callback_data=f"qlt 480p"),
          InlineKeyboardButton(text=f"720p", callback_data=f"qlt 720p"),
          InlineKeyboardButton(text=f"1080p", callback_data=f"qlt 1080p")],
         [InlineKeyboardButton(text=f"Оставить как есть", callback_data=f"qlt 0")]
     ]
-    for i, item in enumerate(['audio', '480p', '720p', '1080p']):
+    for i, item in enumerate(['480p', '720p', '1080p']):
         if item == user.quality:
             available_buttons[0].pop(i)
     keyboard = InlineKeyboardMarkup(inline_keyboard=available_buttons)
