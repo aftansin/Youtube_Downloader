@@ -23,4 +23,3 @@ with YoutubeDL(ydl_opts) as ydl:
     height = info.get('height')
     print(width)
     print(height)
-
