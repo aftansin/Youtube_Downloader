@@ -21,7 +21,7 @@ def download_video(url: str, resolution: str):
     ydl_opts = {
         'format': (f'bv*[height<={resolution}][ext=mp4][vcodec~="^((he|a)vc|h26[45])"]+ba[ext=m4a]/b[ext=mp4]'
                    f' / bv*+ba/b'),
-        'outtmpl': f'Videos/{file_name}.%(ext)s',
+        'outtmpl': f'media/{file_name}.%(ext)s',
         'quiet': True,
         'no_warnings': True
     }
@@ -73,6 +73,6 @@ async def send_video(message: Message, bot: Bot, db_session) -> None:
             await message.answer(f'Invalid URL\n{e}')
         else:
             await message.answer(f'Error downloading your video\n{e}')
-        for file in os.listdir('Videos'):
+        for file in os.listdir('media'):
             if file.startswith(file_name):
-                os.remove(f'Videos/{file}')
+                os.remove(f'media/{file}')
