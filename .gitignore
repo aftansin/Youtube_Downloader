@@ -136,3 +136,4 @@ dmypy.json
 # Static/ Media/
 static/
 media/
+/ffmpeg.exe

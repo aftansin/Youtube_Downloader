@@ -13,7 +13,6 @@ from middlewares import RegistrationCheck
 
 video_router = Router()
 video_router.message.middleware(RegistrationCheck())
-last_edited = {}
 
 
 def download_video(url: str, resolution: str):
