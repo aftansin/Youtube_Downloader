@@ -39,9 +39,9 @@ async def download_video_async(url: str, resolution: str):
 @video_router.message(F.text.startswith('https://www.youtube.com/') |
                       F.text.startswith('https://youtu.be/') |
                       F.text.startswith('https://youtube.com/'))
-async def send_video(message: Message, bot: Bot, db_session) -> None:
+async def send_video(message: Message, bot: Bot, db_session):
     db_user = await get_user(message.from_user.id, db_session)
-    status_msg = await message.answer('Downloading... Wait.')
+    status_msg = await message.answer('🔣Downloading... Wait.')
     url = message.text
     user_resolution = db_user.quality[:-1]  # user requested video resolution
     info = await download_video_async(url, user_resolution)
