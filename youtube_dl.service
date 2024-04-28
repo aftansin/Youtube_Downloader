@@ -4,9 +4,9 @@ After=network.target
 
 [Service]
 EnvironmentFile=/etc/environment
-ExecStart=/home/andrey/Documents/Youtube_Downloader/venv/bin/python main.py
-ExecReload=/home/andrey/Documents/Youtube_Downloader/venv/bin/python main.py
-WorkingDirectory=/home/andrey/Documents/Youtube_Downloader/
+ExecStart=/root/Youtube_Downloader/venv/bin/python main.py
+ExecReload=/root/Youtube_Downloader/venv/bin/python main.py
+WorkingDirectory=/root/Youtube_Downloader/
 KillMode=process
 Restart=always
 RestartSec=5

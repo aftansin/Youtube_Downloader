@@ -13,5 +13,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            systemctl stop youtube_dl
             cd ~/Documents/Youtube_Downloader
             git pull
+            systemctl start youtube_dl
