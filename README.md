@@ -1,4 +1,23 @@
-# Telegram Bot
-https://mastergroosha.github.io/telegram-tutorial-2/quickstart/
+# YouTube Download Bot
 
-kill -9 $(pgrep bash)
+Бот позволяет скачивать видео с Youtube и присылать в чат пользователю.
+В настройках account возможно выбрать качество загружаемого видео файла.
+Краткий гайд по использованию aiogram по ссылке ниже.
+[Знакомство с aiogram](https://mastergroosha.github.io/telegram-tutorial-2/quickstart/)
+
+
+## Запуск бота
+В гите необходимы следующие переменные secrets для автоматической выгрузки на сервер:
+- ```HOST``` - ip адрес сервера
+- ```USER``` - пользователь linux
+- ```SSH_KEY``` - приватный ключ компьютера
+
+Что бы создать службу работы - сделать символьную ссылку на файл ```youtube_dl.service``` 
+в ```/etc/systemd/system/youtube_dl.service``` командой:
+- ```ln youtube_dl.service /etc/systemd/system/youtube_dl.service```
+
+Активировать автозапуск службы командой
+- ```systemctl enable youtube_dl.service```
+
+На сервере посмотреть лог работы скрипта можно так:
+- ```journalctl -r -u youtube_dl```

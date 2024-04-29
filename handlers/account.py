@@ -44,4 +44,4 @@ async def change_user_quality(callback: CallbackQuery, db_session):
         await callback.message.answer('Изменения сохранены!')
         await callback.message.delete_reply_markup()
     else:
-        await callback.message.delete_reply_markup()
+        await callback.message.delete()

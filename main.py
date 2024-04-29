@@ -27,24 +27,17 @@ bot_commands = [
 
 async def main() -> None:
     api_server = TelegramAPIServer.from_base('http://localhost:8081')  # локальный сервер в Docker
-    bot = Bot(
-        TOKEN,
-        parse_mode=ParseMode.HTML,
-        session=AiohttpSession(api=api_server)
-    )
-    await bot.set_my_commands(commands=bot_commands)
+    bot = Bot(TOKEN, parse_mode=ParseMode.HTML, session=AiohttpSession(api=api_server))
     dp = Dispatcher()
     dp.include_routers(start_router, help_router, account_router,  video_router)
     async_engine = get_async_engine("sqlite+aiosqlite:///users.db")
     session_maker = get_session_maker(async_engine)
     await update_schemas(async_engine, BaseModel.metadata)
+    await bot.set_my_commands(commands=bot_commands)
     await bot(DeleteWebhook(drop_pending_updates=True))
     await dp.start_polling(bot, db_session=session_maker)
 
 
 if __name__ == "__main__":
-    try:
-        logging.basicConfig(level=logging.INFO)
-        asyncio.run(main())
-    except (KeyboardInterrupt, SystemExit):
-        print('Bot stopped')
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(main())
