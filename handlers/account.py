@@ -15,9 +15,9 @@ async def command_account_handler(message: Message, db_session) -> None:
     user = await get_user(message.from_user.id, db_session)
     allowed = 'Доступ разрешен' if user.allowed else 'Доступ запрещен'
     msg = (f'▫️Мой профиль: \n'
-           f'🔹I: {user.user_id}\n'
-           f'🔹Username: {user.username}\n'
-           f'🔹Reg. date: {user.reg_date}\n'
+           f'🔹ID: {user.user_id}\n'
+           f'🔹Логин: {user.username}\n'
+           f'🔹Дата регистрации: {user.reg_date}\n'
            f'🔹{allowed}\n'
            f'🔹Качество видео: {user.quality}\n'
            f'▫️Изменить качество скачивания: ')
