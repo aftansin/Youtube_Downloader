@@ -14,13 +14,13 @@ account_router.message.middleware(RegistrationCheck())
 async def command_account_handler(message: Message, db_session) -> None:
     user = await get_user(message.from_user.id, db_session)
     allowed = 'Доступ разрешен' if user.allowed else 'Доступ запрещен'
-    msg = (f'Мой профиль: \n'
-           f'id: {user.user_id}\n'
-           f'username: {user.username}\n'
-           f'reg. date: {user.reg_date}\n'
-           f'{allowed}\n'
-           f'Качество видео: {user.quality}\n'
-           f'Изменить качество скачивания: ')
+    msg = (f'▫️Мой профиль: \n'
+           f'🔹id: {user.user_id}\n'
+           f'🔹username: {user.username}\n'
+           f'🔹reg. date: {user.reg_date}\n'
+           f'🔹{allowed}\n'
+           f'🔹Качество видео: {user.quality}\n'
+           f'▫️Изменить качество скачивания: ')
     available_buttons = [
         [InlineKeyboardButton(text=f"480p", callback_data=f"qlt 480p"),
          InlineKeyboardButton(text=f"720p", callback_data=f"qlt 720p"),
