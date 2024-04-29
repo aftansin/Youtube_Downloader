@@ -42,6 +42,6 @@ async def change_user_quality(callback: CallbackQuery, db_session):
     if requested_quality != '0':
         await edit_user_quality(callback.from_user.id, requested_quality, db_session)
         await callback.message.answer('Изменения сохранены!')
-        await callback.message.delete_reply_markup()
+        await callback.message.delete()
     else:
         await callback.message.delete()
