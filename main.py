@@ -10,6 +10,8 @@ from dotenv import load_dotenv
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
+from loguru import logger
+from notifiers.logging import NotificationHandler
 
 from db import BaseModel, get_async_engine, get_session_maker, update_schemas
 from handlers import start_router, help_router, video_router
@@ -17,6 +19,7 @@ from handlers.account import account_router
 
 load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
+ADMIN_ID = os.getenv("ADMIN_ID")
 
 bot_commands = [
     BotCommand(command='start', description='Restart the bot'),
@@ -40,4 +43,13 @@ async def main() -> None:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())
+    # Конфигурируем логирование
+    params = {'token': TOKEN, 'chat_id': ADMIN_ID}
+    telegram_handler = NotificationHandler("telegram", defaults=params)
+    logger.add(telegram_handler, level="INFO", format="{level} {message}")
+    logger.add("debug.log", rotation="1 MB")
+    try:
+        logger.info(f'Youtube Bot Started...')
+        asyncio.run(main())
+    except Exception as e:
+        logger.info(e)
