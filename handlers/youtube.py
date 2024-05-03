@@ -39,7 +39,7 @@ async def download_video_async(url: str, resolution: str):
 @video_router.message(F.text.startswith('http'))
 async def send_video(message: Message, bot: Bot, db_session):
     db_user = await get_user(message.from_user.id, db_session)
-    status_msg = await message.answer('⬇️ Downloading... Wait.')
+    status_msg = await message.answer('⬇️ Downloading... Wait.', disable_notification=True)
     url = message.text
     user_resolution = db_user.quality[:-1]  # user requested video resolution
     info = await download_video_async(url, user_resolution)
@@ -55,7 +55,8 @@ async def send_video(message: Message, bot: Bot, db_session):
                     duration=file_info.get('duration'),
                     width=file_info.get('width'),
                     height=file_info.get('height'),
-                    caption=file_info.get('title'))
+                    caption=file_info.get('title'),
+                    disable_notification=True)
         except Exception as e:
             await message.answer(f"Couldn't send file\n{e}")
             for file in file_info['requested_downloads']:
