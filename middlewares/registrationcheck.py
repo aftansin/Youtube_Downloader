@@ -25,9 +25,4 @@ class RegistrationCheck(BaseMiddleware):
                 user = response.scalar()
                 if user and user.allowed:
                     return await handler(event, data)
-                elif user and not user.allowed:
-                    await event.answer('Access Denied.')
-                else:
-                    user = User(user_id=user_id, username=event.from_user.username, allowed=False)
-                    await session.merge(user)
-                    await event.answer("Please call administrator to get access.")
+                await event.answer('Access Denied.')
