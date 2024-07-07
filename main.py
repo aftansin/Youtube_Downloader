@@ -16,6 +16,7 @@ from notifiers.logging import NotificationHandler
 from db import BaseModel, get_async_engine, get_session_maker, update_schemas
 from handlers import start_router, help_router, video_router
 from handlers.account import account_router
+from handlers.users import users_router
 
 load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -24,15 +25,16 @@ ADMIN_ID = os.getenv("ADMIN_ID")
 bot_commands = [
     BotCommand(command='start', description='Restart the bot'),
     BotCommand(command='help', description='Help info'),
-    BotCommand(command='account', description='Account info')
+    BotCommand(command='account', description='Account info'),
+    BotCommand(command='users', description='Users')
 ]
 
 
 async def main() -> None:
     api_server = TelegramAPIServer.from_base('http://localhost:8081')  # локальный сервер в Docker
-    bot = Bot(TOKEN, parse_mode=ParseMode.HTML, session=AiohttpSession(api=api_server))
+    bot = Bot(TOKEN, parse_mode=ParseMode.HTML, session=AiohttpSession())
     dp = Dispatcher()
-    dp.include_routers(start_router, help_router, account_router,  video_router)
+    dp.include_routers(start_router, help_router, users_router, account_router, video_router)
     async_engine = get_async_engine("sqlite+aiosqlite:///users.db")
     session_maker = get_session_maker(async_engine)
     await update_schemas(async_engine, BaseModel.metadata)
