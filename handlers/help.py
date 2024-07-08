@@ -8,4 +8,4 @@ help_router = Router()
 
 @help_router.message(Command("help"))
 async def help_func(message: Message) -> None:
-    await message.reply('Can download video from many sources!!', disable_notification=True)
+    await message.reply('Can download video from youtube, tiktok!!', disable_notification=True)
