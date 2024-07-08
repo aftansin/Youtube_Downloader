@@ -81,7 +81,7 @@ async def youtube_video(message: Message, bot: Bot, db_session):
 @video_router.message(F.text.regexp(r'^.*https:\/\/(?:m|www|vm)?\.?tiktok\.com\/((?:.*\b(?:('
                                     r'?:usr|v|embed|user|video)\/|\?shareId=|\&item_id=)(\d+))|\w+)'))
 async def tiktok_video(message: Message):
-    pass
+    await message.answer(f'Function is in progress. Sorry')
 
 
 @video_router.message()

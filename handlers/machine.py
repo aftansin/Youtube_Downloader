@@ -25,7 +25,7 @@ async def command_users_handler(message: Message):
     # check media folder is empty or not
     if len(os.listdir('./media')) == 0:
         msg += "Media directory is empty"
-        await message.answer(msg)
+        await message.answer(msg, disable_notification=True)
     else:
         msg += "Media directory is NOT empty"
         keyboard = InlineKeyboardBuilder()
