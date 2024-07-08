@@ -1,6 +1,5 @@
 import asyncio
 import os
-import re
 import time
 
 import yt_dlp
@@ -14,6 +13,38 @@ from middlewares import RegistrationCheck
 
 video_router = Router()
 video_router.message.middleware(RegistrationCheck())
+
+
+async def send_video_to_user(file_info, file_name, file_path, message, status_msg, bot: Bot):
+    try:
+        await status_msg.edit_text('⬆️ Sending file to Telegram...')
+        try:
+            async with ChatActionSender.upload_video(message.chat.id, bot):
+                await message.answer_video(
+                    video=FSInputFile(file_path),
+                    duration=file_info.get('duration'),
+                    width=file_info.get('width'),
+                    height=file_info.get('height'),
+                    caption=file_info.get('title'),
+                    disable_notification=True)
+        except Exception as e:
+            await message.answer(f"Couldn't send file\n{e}")
+            for file in file_info['requested_downloads']:
+                os.remove(file['filepath'])
+        else:
+            for file in file_info['requested_downloads']:
+                os.remove(file['filepath'])
+        finally:
+            await status_msg.delete()
+            await message.delete()
+    except Exception as e:
+        if isinstance(e, yt_dlp.utils.DownloadError):
+            await message.answer(f'Invalid URL\n{e}')
+        else:
+            await message.answer(f'Error downloading your video\n{e}')
+        for file in os.listdir('media'):
+            if file.startswith(file_name):
+                os.remove(f'media/{file}')
 
 
 def download_youtube_video(url: str, resolution: str):
@@ -66,35 +97,7 @@ async def youtube_video(message: Message, bot: Bot, db_session):
     file_name = info[0]
     file_info = info[1]
     file_path = file_info['requested_downloads'][0]['filepath']
-    try:
-        await status_msg.edit_text('⬆️ Sending file to Telegram...')
-        try:
-            async with ChatActionSender.upload_video(message.chat.id, bot):
-                await message.answer_video(
-                    video=FSInputFile(file_path),
-                    duration=file_info.get('duration'),
-                    width=file_info.get('width'),
-                    height=file_info.get('height'),
-                    caption=file_info.get('title'),
-                    disable_notification=True)
-        except Exception as e:
-            await message.answer(f"Couldn't send file\n{e}")
-            for file in file_info['requested_downloads']:
-                os.remove(file['filepath'])
-        else:
-            for file in file_info['requested_downloads']:
-                os.remove(file['filepath'])
-        finally:
-            await status_msg.delete()
-            await message.delete()
-    except Exception as e:
-        if isinstance(e, yt_dlp.utils.DownloadError):
-            await message.answer(f'Invalid URL\n{e}')
-        else:
-            await message.answer(f'Error downloading your video\n{e}')
-        for file in os.listdir('media'):
-            if file.startswith(file_name):
-                os.remove(f'media/{file}')
+    await send_video_to_user(file_info, file_name, file_path, message, status_msg, bot)
 
 
 @video_router.message(F.text.regexp(r'^.*https:\/\/(?:m|www|vm)?\.?tiktok\.com\/((?:.*\b(?:('
@@ -105,36 +108,7 @@ async def tiktok_video(message: Message, bot: Bot):
     file_name = info[0]
     file_info = info[1]
     file_path = file_info['requested_downloads'][0]['filepath']
-
-    try:
-        await status_msg.edit_text('⬆️ Sending file to Telegram...')
-        try:
-            async with ChatActionSender.upload_video(message.chat.id, bot):
-                await message.answer_video(
-                    video=FSInputFile(file_path),
-                    duration=file_info.get('duration'),
-                    width=file_info.get('width'),
-                    height=file_info.get('height'),
-                    caption=file_info.get('title'),
-                    disable_notification=True)
-        except Exception as e:
-            await message.answer(f"Couldn't send file\n{e}")
-            for file in file_info['requested_downloads']:
-                os.remove(file['filepath'])
-        else:
-            for file in file_info['requested_downloads']:
-                os.remove(file['filepath'])
-        finally:
-            await status_msg.delete()
-            await message.delete()
-    except Exception as e:
-        if isinstance(e, yt_dlp.utils.DownloadError):
-            await message.answer(f'Invalid URL\n{e}')
-        else:
-            await message.answer(f'Error downloading your video\n{e}')
-        for file in os.listdir('media'):
-            if file.startswith(file_name):
-                os.remove(f'media/{file}')
+    await send_video_to_user(file_info, file_name, file_path, message, status_msg, bot)
 
 
 @video_router.message(F.text)
