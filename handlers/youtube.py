@@ -16,7 +16,7 @@ video_router = Router()
 video_router.message.middleware(RegistrationCheck())
 
 
-def download_video(url: str, resolution: str):
+def download_youtube_video(url: str, resolution: str):
     file_name = round(time.time() * 1000)
     ydl_opts = {
         'format': (f'bv*[height<={resolution}][ext=mp4][vcodec~="^((he|a)vc|h26[45])"]+ba[ext=m4a]/b[ext=mp4]'
@@ -30,9 +30,28 @@ def download_video(url: str, resolution: str):
         return [file_name, file_info]
 
 
-async def download_video_async(url: str, resolution: str):
+def download_tiktok_video(url: str):
+    file_name = round(time.time() * 1000)
+    ydl_opts = {
+        'outtmpl': f'media/{file_name}.%(ext)s',
+        'quiet': True,
+        'no_warnings': True
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        file_info = ydl.extract_info(url, download=True)
+        return [file_name, file_info]
+
+
+async def download_youtube_video_async(url: str, resolution: str):
     loop = asyncio.get_event_loop()
-    info = await loop.run_in_executor(None, download_video, url, resolution)
+    info = await loop.run_in_executor(None, download_tiktok_video, url, resolution)
+    file_name, file_info = info[0], info[1]
+    return [file_name, file_info]
+
+
+async def download_tiktok_video_async(url: str):
+    loop = asyncio.get_event_loop()
+    info = await loop.run_in_executor(None, download_tiktok_video, url)
     file_name, file_info = info[0], info[1]
     return [file_name, file_info]
 
@@ -43,7 +62,7 @@ async def youtube_video(message: Message, bot: Bot, db_session):
     status_msg = await message.answer('⬇️ Downloading... Wait.', disable_notification=True)
     url = message.text
     user_resolution = db_user.quality[:-1]  # user requested video resolution
-    info = await download_video_async(url, user_resolution)
+    info = await download_youtube_video_async(url, user_resolution)
     file_name = info[0]
     file_info = info[1]
     file_path = file_info['requested_downloads'][0]['filepath']
@@ -80,8 +99,42 @@ async def youtube_video(message: Message, bot: Bot, db_session):
 
 @video_router.message(F.text.regexp(r'^.*https:\/\/(?:m|www|vm)?\.?tiktok\.com\/((?:.*\b(?:('
                                     r'?:usr|v|embed|user|video)\/|\?shareId=|\&item_id=)(\d+))|\w+)'))
-async def tiktok_video(message: Message):
-    await message.answer(f'Function is in progress. Sorry')
+async def tiktok_video(message: Message, bot: Bot):
+    status_msg = await message.answer('⬇️ Downloading... Wait.', disable_notification=True)
+    info = await download_tiktok_video_async(message.text)
+    file_name = info[0]
+    file_info = info[1]
+    file_path = file_info['requested_downloads'][0]['filepath']
+
+    try:
+        await status_msg.edit_text('⬆️ Sending file to Telegram...')
+        try:
+            async with ChatActionSender.upload_video(message.chat.id, bot):
+                await message.answer_video(
+                    video=FSInputFile(file_path),
+                    duration=file_info.get('duration'),
+                    width=file_info.get('width'),
+                    height=file_info.get('height'),
+                    caption=file_info.get('title'),
+                    disable_notification=True)
+        except Exception as e:
+            await message.answer(f"Couldn't send file\n{e}")
+            for file in file_info['requested_downloads']:
+                os.remove(file['filepath'])
+        else:
+            for file in file_info['requested_downloads']:
+                os.remove(file['filepath'])
+        finally:
+            await status_msg.delete()
+            await message.delete()
+    except Exception as e:
+        if isinstance(e, yt_dlp.utils.DownloadError):
+            await message.answer(f'Invalid URL\n{e}')
+        else:
+            await message.answer(f'Error downloading your video\n{e}')
+        for file in os.listdir('media'):
+            if file.startswith(file_name):
+                os.remove(f'media/{file}')
 
 
 @video_router.message(F.text)
