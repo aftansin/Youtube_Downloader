@@ -1,11 +1,13 @@
 import asyncio
 import os
+import shutil
 import time
 
 import yt_dlp
 from aiogram import Router, F, Bot
 from aiogram.types import Message, FSInputFile
 from aiogram.utils.chat_action import ChatActionSender
+from hurry.filesize import size
 
 from db.requests import get_user
 from middlewares import RegistrationCheck
@@ -13,6 +15,20 @@ from middlewares import RegistrationCheck
 
 video_router = Router()
 video_router.message.middleware(RegistrationCheck())
+
+
+async def get_file_size(url, user_resolution):
+    ydl_opts = {
+        'format': (f'bv*[height<={user_resolution}][ext=mp4][vcodec~="^((he|a)vc|h26[45])"]+ba[ext=m4a]/b[ext=mp4]'
+                   f' / bv*+ba/b'),
+        'quiet': True,
+        'no_warnings': True
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        file_info = ydl.extract_info(url, download=False)
+        original_url = file_info.get('original_url')
+        filesize_approx = file_info.get('filesize_approx')
+        return original_url, filesize_approx
 
 
 async def send_video_to_user(file_info, file_name, file_path, message, status_msg, bot: Bot):
@@ -90,14 +106,21 @@ async def download_tiktok_video_async(url: str):
 @video_router.message(F.text.regexp(r'(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*'))
 async def youtube_video(message: Message, bot: Bot, db_session):
     db_user = await get_user(message.from_user.id, db_session)
-    status_msg = await message.answer('⬇️ Downloading... Wait.', disable_notification=True)
     url = message.text
     user_resolution = db_user.quality[:-1]  # user requested video resolution
-    info = await download_youtube_video_async(url, user_resolution)
-    file_name = info[0]
-    file_info = info[1]
-    file_path = file_info['requested_downloads'][0]['filepath']
-    await send_video_to_user(file_info, file_name, file_path, message, status_msg, bot)
+
+    original_url, filesize_approx = await get_file_size(url, user_resolution)
+    free_space = shutil.disk_usage("/")[2]
+    if filesize_approx * 0.1 < free_space:
+        status_msg = await message.answer(f'⬇️ Downloading {size(filesize_approx)} ... Wait.', disable_notification=True)
+        info = await download_youtube_video_async(url, user_resolution)
+        file_name = info[0]
+        file_info = info[1]
+        file_path = file_info['requested_downloads'][0]['filepath']
+        await send_video_to_user(file_info, file_name, file_path, message, status_msg, bot)
+    else:
+        await message.answer(f'File is too large {size(filesize_approx)} ... Try to decrease quality.',
+                             disable_notification=True)
 
 
 @video_router.message(F.text.regexp(r'^.*https:\/\/(?:m|www|vm)?\.?tiktok\.com\/((?:.*\b(?:('
