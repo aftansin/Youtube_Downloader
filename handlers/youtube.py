@@ -84,13 +84,6 @@ async def tiktok_video(message: Message):
     await message.answer(f'Function is in progress. Sorry')
 
 
-@video_router.message()
+@video_router.message(F.text)
 async def any_video(message: Message):
-    url = message.text
-    try:
-        info = await download_video_async(url, '720')
-        file_name = info[0]
-        file_info = info[1]
-        await message.answer(f'{file_name}\n{file_info}')
-    except Exception as e:
-        await message.answer(f'{e}')
+    await message.answer(f'Function is in progress. Sorry')

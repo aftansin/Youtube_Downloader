@@ -35,6 +35,7 @@ bot_commands = [
 async def main() -> None:
     api_server = TelegramAPIServer.from_base('http://localhost:8081')  # локальный сервер в Docker
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML, session=AiohttpSession(api=api_server))
+    # bot = Bot(TOKEN, parse_mode=ParseMode.HTML, session=AiohttpSession())
     dp = Dispatcher()
     dp.include_routers(start_router, help_router, users_router, machine_router, account_router, video_router)
     async_engine = get_async_engine("sqlite+aiosqlite:///users.db")
@@ -56,4 +57,4 @@ if __name__ == "__main__":
         logger.info(f'Youtube Bot Started...')
         asyncio.run(main())
     except Exception as e:
-        logger.info(e)
+        logger.info(str(e))
