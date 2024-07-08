@@ -23,7 +23,7 @@ async def command_users_handler(message: Message):
            f'Used: {used} GiB\n'
            f'Free: {free} GiB\n')
     # check media folder is empty or not
-    if len(os.listdir('../media')) == 0:
+    if len(os.listdir('./media')) == 0:
         msg += "Media directory is empty"
         await message.answer(msg)
     else:
@@ -36,7 +36,7 @@ async def command_users_handler(message: Message):
 @machine_router.callback_query(F.data.startswith('clear_folder'))
 async def clear_media_folder(callback: CallbackQuery):
     await callback.answer('')
-    folder = '../media'
+    folder = './media'
     for filename in os.listdir(folder):
         file_path = os.path.join(folder, filename)
         try:
