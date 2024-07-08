@@ -32,7 +32,7 @@ async def command_account_handler(message: Message, db_session) -> None:
             available_buttons[0].pop(i)
     keyboard = InlineKeyboardMarkup(inline_keyboard=available_buttons)
 
-    await message.answer(msg, reply_markup=keyboard)
+    await message.answer(msg, reply_markup=keyboard, disable_notification=True)
 
 
 @account_router.callback_query(F.data.startswith('qlt'))
@@ -41,7 +41,7 @@ async def change_user_quality(callback: CallbackQuery, db_session):
     await callback.answer('')
     if requested_quality != '0':
         await edit_user_quality(callback.from_user.id, requested_quality, db_session)
-        await callback.message.answer('Изменения сохранены!')
+        await callback.message.answer('Изменения сохранены!', disable_notification=True)
         await callback.message.delete()
     else:
         await callback.message.delete()

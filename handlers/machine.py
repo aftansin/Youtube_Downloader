@@ -30,7 +30,7 @@ async def command_users_handler(message: Message):
         msg += "Media directory is NOT empty"
         keyboard = InlineKeyboardBuilder()
         keyboard.add(InlineKeyboardButton(text='Clear Media folder', callback_data=f'clear_folder'))
-        await message.answer(msg, reply_markup=keyboard.as_markup())
+        await message.answer(msg, reply_markup=keyboard.as_markup(), disable_notification=True)
 
 
 @machine_router.callback_query(F.data.startswith('clear_folder'))
@@ -44,8 +44,9 @@ async def clear_media_folder(callback: CallbackQuery):
                 os.unlink(file_path)
             elif os.path.isdir(file_path):
                 shutil.rmtree(file_path)
-            await callback.message.answer('Folder now is empty')
+            await callback.message.answer('Folder now is empty', disable_notification=True)
         except Exception as e:
-            await callback.message.answer('Failed to delete %s. Reason: %s' % (file_path, e))
+            await callback.message.answer('Failed to delete %s. Reason: %s' % (file_path, e),
+                                          disable_notification=True)
 
 

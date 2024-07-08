@@ -38,7 +38,7 @@ async def download_video_async(url: str, resolution: str):
 
 
 @video_router.message(F.text.regexp(r'(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*'))
-async def send_video(message: Message, bot: Bot, db_session):
+async def youtube_video(message: Message, bot: Bot, db_session):
     db_user = await get_user(message.from_user.id, db_session)
     status_msg = await message.answer('⬇️ Downloading... Wait.', disable_notification=True)
     url = message.text
@@ -76,3 +76,21 @@ async def send_video(message: Message, bot: Bot, db_session):
         for file in os.listdir('media'):
             if file.startswith(file_name):
                 os.remove(f'media/{file}')
+
+
+@video_router.message(F.text.regexp(r'^.*https:\/\/(?:m|www|vm)?\.?tiktok\.com\/((?:.*\b(?:('
+                                    r'?:usr|v|embed|user|video)\/|\?shareId=|\&item_id=)(\d+))|\w+)'))
+async def tiktok_video(message: Message):
+    pass
+
+
+@video_router.message()
+async def any_video(message: Message):
+    url = message.text
+    try:
+        info = await download_video_async(url, '720')
+        file_name = info[0]
+        file_info = info[1]
+        await message.answer(f'{file_name}\n{file_info}')
+    except Exception as e:
+        await message.answer(f'{e}')

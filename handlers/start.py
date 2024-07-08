@@ -13,4 +13,4 @@ start_router.message.middleware(RegistrationCheck())
 async def command_start_handler(message: Message) -> None:
 
     await message.answer(f"Hi, <b>{message.from_user.full_name}!</b>\n"
-                         f"Send me the link you want to download..")
+                         f"Send me the link you want to download..", disable_notification=True)

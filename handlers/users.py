@@ -25,7 +25,7 @@ async def get_users_inline_kb(async_session):
 @users_router.message(Command("users"))
 async def command_users_handler(message: Message, db_session: AsyncEngine):
     msg = f'Все пользователи: '
-    await message.answer(msg, reply_markup=await get_users_inline_kb(db_session))
+    await message.answer(msg, reply_markup=await get_users_inline_kb(db_session), disable_notification=True)
 
 
 @users_router.callback_query(F.data.startswith('user_'))
@@ -73,7 +73,7 @@ async def give_permissions(callback: CallbackQuery, bot: Bot, db_session: AsyncE
         await callback.message.delete_reply_markup()
         return
     await edit_user_permission(int(user_id), bool(int(privileges)), db_session)
-    await callback.message.answer('Привилегии изменены')
+    await callback.message.answer('Привилегии изменены', disable_notification=True)
     await callback.message.delete_reply_markup()
     msg = '✅ You have been granted access!' if bool(int(privileges)) else '❌ You have been denied!'
     await bot.send_message(chat_id=user_id, text=msg)
