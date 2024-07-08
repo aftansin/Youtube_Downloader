@@ -75,7 +75,7 @@ def download_tiktok_video(url: str):
 
 async def download_youtube_video_async(url: str, resolution: str):
     loop = asyncio.get_event_loop()
-    info = await loop.run_in_executor(None, download_tiktok_video, url, resolution)
+    info = await loop.run_in_executor(None, download_youtube_video, url, resolution)
     file_name, file_info = info[0], info[1]
     return [file_name, file_info]
 
