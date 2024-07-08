@@ -1,5 +1,6 @@
 import asyncio
 import os
+import re
 import time
 
 import yt_dlp
@@ -36,7 +37,7 @@ async def download_video_async(url: str, resolution: str):
     return [file_name, file_info]
 
 
-@video_router.message(F.text.startswith('http'))
+@video_router.message(F.text.regexp(r'(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*'))
 async def send_video(message: Message, bot: Bot, db_session):
     db_user = await get_user(message.from_user.id, db_session)
     status_msg = await message.answer('⬇️ Downloading... Wait.', disable_notification=True)
@@ -75,8 +76,3 @@ async def send_video(message: Message, bot: Bot, db_session):
         for file in os.listdir('media'):
             if file.startswith(file_name):
                 os.remove(f'media/{file}')
-
-
-# F.text.startswith('https://www.youtube.com/')
-# F.text.startswith('https://youtu.be/')
-# F.text.startswith('https://youtube.com/')
