@@ -37,7 +37,7 @@ async def user(callback: CallbackQuery, db_session: AsyncEngine):
         as_marked_section(
             Bold("Пользователь:"),
             as_key_value("ID", db_user.user_id),
-            as_key_value("USERNAME", f'@{db_user.username}'),
+            as_key_value("FULLNAME", f'@{db_user.username}'),
             as_key_value("REG DATE", db_user.reg_date),
             marker="🔸 ",
         ),

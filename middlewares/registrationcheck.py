@@ -31,7 +31,6 @@ class RegistrationCheck(BaseMiddleware):
         async with async_session() as session:
             async with session.begin():
                 user_id = event.from_user.id
-                username = event.from_user.username
                 full_name = event.from_user.full_name
                 statement = select(User).filter_by(user_id=user_id)
                 response = await session.execute(statement)
@@ -42,7 +41,7 @@ class RegistrationCheck(BaseMiddleware):
                     # запишем в бд админа, если его еще нет.
                     if not user:
                         await add_user_registration(user_id=user_id,
-                                                    username=username,
+                                                    username=full_name,
                                                     allowed=True,
                                                     async_session=async_session)
                     return await handler(event, data)
@@ -51,7 +50,7 @@ class RegistrationCheck(BaseMiddleware):
                 # если нет, то запишем в бд и отправим сообщение
                 if not user:
                     await add_user_registration(user_id=user_id,
-                                                username=username,
+                                                username=full_name,
                                                 allowed=False,
                                                 async_session=async_session)
                     msg = f'Hi, <b>{full_name}!</b> To use Bot please call admin @aftansin'

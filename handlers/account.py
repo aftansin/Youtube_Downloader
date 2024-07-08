@@ -16,7 +16,7 @@ async def command_account_handler(message: Message, db_session) -> None:
     allowed = 'Доступ разрешен' if user.allowed else 'Доступ запрещен'
     msg = (f'▫️Мой профиль: \n'
            f'🔹ID: {user.user_id}\n'
-           f'🔹Логин: {user.username}\n'
+           f'🔹Имя: {user.username}\n'
            f'🔹Дата регистрации: {user.reg_date}\n'
            f'🔹{allowed}\n'
            f'🔹Качество видео: {user.quality}\n'
