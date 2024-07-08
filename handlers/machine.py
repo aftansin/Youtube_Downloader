@@ -15,9 +15,9 @@ machine_router.message.middleware(AdminProtect())
 @machine_router.message(Command("machine"))
 async def command_users_handler(message: Message):
     total, used, free = shutil.disk_usage("/")
-    total = total / (1024.0 ** 3)  # total // (2**30)
-    used = used / (1024.0 ** 3)  # used // (2**30)
-    free = free / (1024.0 ** 3)  # free // (2**30)
+    total = total / (1024.0 ** 3)
+    used = used / (1024.0 ** 3)
+    free = free / (1024.0 ** 3)
     msg = (f'Сведения о системе: \n'
            f'Total: {round(total, 2)}\n'
            f'Used: {round(used, 2)}\n'
