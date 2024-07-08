@@ -19,9 +19,9 @@ async def command_users_handler(message: Message):
     used = used / (1024.0 ** 3)  # used // (2**30)
     free = free / (1024.0 ** 3)  # free // (2**30)
     msg = (f'Сведения о системе: \n'
-           f'Total: {total}\n'
-           f'Used: {used}\n'
-           f'Free: {free}\n')
+           f'Total: {round(total, 2)}\n'
+           f'Used: {round(used, 2)}\n'
+           f'Free: {round(free, 2)}\n')
     # check media folder is empty or not
     if len(os.listdir('./media')) == 0:
         msg += "Media directory is empty"
