@@ -15,13 +15,13 @@ machine_router.message.middleware(AdminProtect())
 @machine_router.message(Command("machine"))
 async def command_users_handler(message: Message):
     total, used, free = shutil.disk_usage("/")
-    total = total // (2**30)
-    used = used // (2**30)
-    free = free // (2**30)
+    total = total / (1024.0 ** 3)  # total // (2**30)
+    used = used / (1024.0 ** 3)  # used // (2**30)
+    free = free / (1024.0 ** 3)  # free // (2**30)
     msg = (f'Сведения о системе: \n'
-           f'Total: {total} GiB\n'
-           f'Used: {used} GiB\n'
-           f'Free: {free} GiB\n')
+           f'Total: {total}\n'
+           f'Used: {used}\n'
+           f'Free: {free}\n')
     # check media folder is empty or not
     if len(os.listdir('./media')) == 0:
         msg += "Media directory is empty"
