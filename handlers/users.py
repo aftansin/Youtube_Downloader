@@ -1,11 +1,11 @@
-from aiogram import Router, F
+from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.types import Message, InlineKeyboardButton, CallbackQuery, InlineKeyboardMarkup
 from aiogram.utils.formatting import as_list, as_marked_section, Bold, as_key_value
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from db.requests import get_all_users, get_user
+from db.requests import get_all_users, get_user, drop_user, edit_user_permission
 from middlewares.registrationcheck import AdminProtect
 
 users_router = Router()
@@ -15,10 +15,10 @@ users_router.message.middleware(AdminProtect())
 async def get_users_inline_kb(async_session):
     all_users = await get_all_users(async_session)
     keyboard = InlineKeyboardBuilder()
-    for user in all_users:
-        text = '✅ ' if user.allowed else '❌ '
-        text += user.username
-        keyboard.add(InlineKeyboardButton(text=text, callback_data=f'user_{user.user_id}'))
+    for person in all_users:
+        text = '✅ ' if person.allowed else '❌ '
+        text += person.username
+        keyboard.add(InlineKeyboardButton(text=text, callback_data=f'user_{person.user_id}'))
     return keyboard.adjust(1).as_markup()
 
 
@@ -58,3 +58,22 @@ async def user(callback: CallbackQuery, db_session: AsyncEngine):
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
     await callback.message.edit_text(**content.as_kwargs(), reply_markup=keyboard)
 
+
+@users_router.callback_query(F.data.startswith('awd_'))
+async def give_permissions(callback: CallbackQuery, bot: Bot, db_session: AsyncEngine):
+    user_id = callback.data.split('_')[1]
+    privileges = callback.data.split('_')[2]
+    await callback.answer('')
+    if privileges == '3':  # delete user from db
+        await drop_user(int(user_id), db_session)
+        await callback.message.answer('Пользователь удален!')
+        await callback.message.delete_reply_markup()
+        return
+    if privileges == '2':  # leave the same
+        await callback.message.delete_reply_markup()
+        return
+    await edit_user_permission(int(user_id), bool(int(privileges)), db_session)
+    await callback.message.answer('Привилегии изменены')
+    await callback.message.delete_reply_markup()
+    msg = '✅ You have been granted access!' if bool(int(privileges)) else '❌ You have been denied!'
+    await bot.send_message(chat_id=user_id, text=msg)

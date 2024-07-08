@@ -4,6 +4,7 @@ from typing import Dict, Any, Callable, Awaitable
 from aiogram import BaseMiddleware
 from aiogram.types import Message
 from dotenv import load_dotenv
+from loguru import logger
 from sqlalchemy import select
 
 from db import User
@@ -55,9 +56,10 @@ class RegistrationCheck(BaseMiddleware):
                                                 async_session=async_session)
                     msg = f'Hi, <b>{full_name}!</b> To use Bot please call admin @aftansin'
                     await event.answer(msg)
+                    logger.info(f'Added new user: {full_name}')
                     return
 
-                # если есть пользователь в бд, то проверим может ли он им пользоваться
+                # если есть пользователь в бд, то проверим, может ли он им пользоваться
                 if not user.allowed:
                     msg = (f'<b>{full_name}</b>, you dont have permissions.\n'
                            f'To use Bot please call admin @aftansin')

@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import select, update, insert
+from sqlalchemy import select, update, insert, delete
 
 from db import User
 
@@ -45,5 +45,12 @@ async def add_user_registration(user_id, username, allowed, async_session):
                                         reg_date=reg_date,
                                         allowed=allowed,
                                         quality='480p')
+        await session.execute(statement)
+        await session.commit()
+
+
+async def drop_user(user_id: int, async_session):
+    async with async_session() as session:
+        statement = delete(User).where(User.user_id == user_id)
         await session.execute(statement)
         await session.commit()
