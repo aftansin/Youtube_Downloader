@@ -111,6 +111,9 @@ async def youtube_video(message: Message, bot: Bot, db_session):
 
     original_url, filesize_approx = await get_file_size(url, user_resolution)
     free_space = shutil.disk_usage("/")[2]
+    await message.answer(f'free space = {size(filesize_approx)}\n'
+                         f'file size = {filesize_approx}',
+                         disable_notification=True)
     if filesize_approx * 0.1 < free_space:
         status_msg = await message.answer(f'⬇️ Downloading {size(filesize_approx)} ... Wait.', disable_notification=True)
         info = await download_youtube_video_async(url, user_resolution)
