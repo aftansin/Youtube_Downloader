@@ -7,7 +7,7 @@ import yt_dlp
 from aiogram import Router, F, Bot
 from aiogram.types import Message, FSInputFile
 from aiogram.utils.chat_action import ChatActionSender
-from hurry.filesize import size, verbose
+from hurry.filesize import size, alternative
 
 from db.requests import get_user
 from middlewares import RegistrationCheck
@@ -120,7 +120,7 @@ async def youtube_video(message: Message, bot: Bot, db_session):
         file_path = file_info['requested_downloads'][0]['filepath']
         await send_video_to_user(file_info, file_name, file_path, message, status_msg, bot)
     else:
-        await message.answer(f'File is too large {size(filesize_approx, system=verbose)} ... Try to decrease quality.',
+        await message.answer(f'File is too large {size(filesize_approx, system=alternative)} ... Try to decrease quality.',
                              disable_notification=True)
 
 
