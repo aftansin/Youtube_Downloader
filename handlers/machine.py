@@ -28,11 +28,10 @@ async def command_users_handler(message: Message):
     # check media folder is empty or not
     if len(os.listdir('./media')) == 0:
         msg += "Media directory is empty"
-        await message.answer(msg, disable_notification=True)
     else:
         msg += "Media directory is NOT empty"
         keyboard.add(InlineKeyboardButton(text='Clear Media folder', callback_data=f'clear_folder'))
-        await message.answer(msg, reply_markup=keyboard.as_markup(), disable_notification=True)
+    await message.answer(msg, reply_markup=keyboard.as_markup(), disable_notification=True)
 
 
 @machine_router.callback_query(F.data.startswith('clear_folder'))
