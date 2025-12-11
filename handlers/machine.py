@@ -1,5 +1,6 @@
 import os
 import shutil
+import subprocess
 
 from aiogram import Router, F
 from aiogram.filters import Command
@@ -30,6 +31,7 @@ async def command_users_handler(message: Message):
         msg += "Media directory is NOT empty"
         keyboard = InlineKeyboardBuilder()
         keyboard.add(InlineKeyboardButton(text='Clear Media folder', callback_data=f'clear_folder'))
+        keyboard.add(InlineKeyboardButton(text='Update yt-dlp', callback_data='update_yt_dlp'))
         await message.answer(msg, reply_markup=keyboard.as_markup(), disable_notification=True)
 
 
@@ -49,4 +51,17 @@ async def clear_media_folder(callback: CallbackQuery):
             await callback.message.answer('Failed to delete %s. Reason: %s' % (file_path, e),
                                           disable_notification=True)
 
+
+@machine_router.callback_query(F.data == 'update_yt_dlp')
+async def update_yt_dlp(callback: CallbackQuery):
+    await callback.answer('Updating yt-dlp...')
+
+    command = "pip install --upgrade yt-dlp"
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+
+    if process.returncode == 0:
+        await callback.message.answer('yt-dlp has been updated successfully!', disable_notification=True)
+    else:
+        await callback.message.answer(f'Failed to update yt-dlp. Error: {stderr.decode()}', disable_notification=True)
 
