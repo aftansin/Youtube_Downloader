@@ -61,7 +61,7 @@ async def update_yt_dlp(callback: CallbackQuery):
     stdout, stderr = process.communicate()
 
     if process.returncode == 0:
-        await callback.message.answer(f'yt-dlp has been updated successfully! {stdout.decode()}', disable_notification=True)
+        await callback.message.answer(f'✅ {stdout.decode()}', disable_notification=True)
     else:
-        await callback.message.answer(f'Failed to update yt-dlp. Error: {stderr.decode()}', disable_notification=True)
+        await callback.message.answer(f'❗️ {stderr.decode()}', disable_notification=True)
 
