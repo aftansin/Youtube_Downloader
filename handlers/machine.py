@@ -23,15 +23,15 @@ async def command_users_handler(message: Message):
            f'Total: {round(total, 2)}\n'
            f'Used: {round(used, 2)}\n'
            f'Free: {round(free, 2)}\n')
+    keyboard = InlineKeyboardBuilder()
+    keyboard.add(InlineKeyboardButton(text='Update yt-dlp', callback_data='update_yt_dlp'))
     # check media folder is empty or not
     if len(os.listdir('./media')) == 0:
         msg += "Media directory is empty"
         await message.answer(msg, disable_notification=True)
     else:
         msg += "Media directory is NOT empty"
-        keyboard = InlineKeyboardBuilder()
         keyboard.add(InlineKeyboardButton(text='Clear Media folder', callback_data=f'clear_folder'))
-        keyboard.add(InlineKeyboardButton(text='Update yt-dlp', callback_data='update_yt_dlp'))
         await message.answer(msg, reply_markup=keyboard.as_markup(), disable_notification=True)
 
 
