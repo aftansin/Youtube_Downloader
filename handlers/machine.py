@@ -55,7 +55,7 @@ async def clear_media_folder(callback: CallbackQuery):
 async def update_yt_dlp(callback: CallbackQuery):
     await callback.answer('Updating yt-dlp...')
 
-    command = "pip install --upgrade yt-dlp"
+    command = f"{sys.executable} -m pip install --upgrade yt-dlp"
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
 
