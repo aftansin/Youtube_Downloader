@@ -34,10 +34,10 @@ bot_commands = [
 
 
 async def main():
-    # api_server = TelegramAPIServer.from_base('http://localhost:8081')  # локальный сервер в Docker
+    api_server = TelegramAPIServer.from_base('http://localhost:8081')  # локальный сервер в Docker
 
-    # bot = Bot(TOKEN, parse_mode=ParseMode.HTML, session=AiohttpSession(api=api_server))
-    bot = Bot(TOKEN, parse_mode=ParseMode.HTML, session=AiohttpSession())
+    bot = Bot(TOKEN, parse_mode=ParseMode.HTML, session=AiohttpSession(api=api_server))
+    # bot = Bot(TOKEN, parse_mode=ParseMode.HTML, session=AiohttpSession())
 
     dp = Dispatcher()
     dp.include_routers(start_router, help_router, users_router, machine_router, account_router, video_router)
