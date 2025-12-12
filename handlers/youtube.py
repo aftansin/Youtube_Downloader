@@ -2,7 +2,6 @@ import asyncio
 import os
 import shutil
 import time
-import uuid
 
 import yt_dlp
 from aiogram import Router, F, Bot
@@ -19,6 +18,8 @@ video_router.message.middleware(RegistrationCheck())
 # Глобальная очередь и статус обработки
 download_queue = asyncio.Queue()
 is_processing = False
+# Словарь для хранения сообщений о статусе для каждого пользователя
+status_messages = {}
 
 
 # Запускаем обработчик очереди при старте
@@ -44,6 +45,16 @@ async def process_queue():
                 except:
                     pass
         finally:
+            # Удаляем сообщение о статусе очереди после завершения задачи
+            if task_data.get('message'):
+                user_id = task_data['message'].from_user.id
+                if user_id in status_messages:
+                    try:
+                        await status_messages[user_id].delete()
+                        del status_messages[user_id]
+                    except:
+                        pass
+
             download_queue.task_done()
             is_processing = False
 
@@ -82,7 +93,7 @@ async def get_file_size(url, user_resolution):
 
 async def send_video_to_user(file_info, file_name, file_path, message, status_msg, bot: Bot):
     try:
-        await status_msg.edit_text('⬆️ Sending file to Telegram...')
+        await status_msg.edit_text('⬆️ Отправляю в Telegram...')
         try:
             async with ChatActionSender.upload_video(message.chat.id, bot):
                 await message.answer_video(
@@ -106,7 +117,7 @@ async def send_video_to_user(file_info, file_name, file_path, message, status_ms
         if isinstance(e, yt_dlp.utils.DownloadError):
             await message.answer(f'Invalid URL\n{e}')
         else:
-            await message.answer(f'Error downloading your video\n{e}')
+            await message.answer(f'Ошибка!\n{e}')
         for file in os.listdir('media'):
             if file.startswith(file_name):
                 os.remove(f'media/{file}')
@@ -161,7 +172,7 @@ async def youtube_video_processor(message: Message, bot: Bot, db_session):
     original_url, filesize_approx = await get_file_size(url, user_resolution)
     free_space = shutil.disk_usage("/")[2]
     if filesize_approx * 1.5 < free_space:
-        status_msg = await message.answer(f'⬇️ Downloading {size(filesize_approx)} ... Wait.',
+        status_msg = await message.answer(f'⬇️ Скачиваю {size(filesize_approx)} ... Ждите.',
                                           disable_notification=True)
         info = await download_youtube_video_async(url, user_resolution)
         file_name = info[0]
@@ -170,7 +181,7 @@ async def youtube_video_processor(message: Message, bot: Bot, db_session):
         await send_video_to_user(file_info, file_name, file_path, message, status_msg, bot)
     else:
         await message.answer(
-            f'File is too large {size(filesize_approx, system=alternative)} ... Try to decrease quality.',
+            f'Слишком большой файл {size(filesize_approx, system=alternative)} ... Уменьшите качество видео.',
             disable_notification=True)
 
 
@@ -195,17 +206,21 @@ async def youtube_video(message: Message, bot: Bot, db_session):
         db_session=db_session
     )
 
-    if queue_position > 1:
-        await message.answer(
-            f"📋 Ваш запрос добавлен в очередь. Позиция: {queue_position}\n"
+    # Сохраняем сообщение о статусе для последующего удаления
+    if queue_position >= 1:
+        status_msg = await message.answer(
+            f"📋 Ваш запрос добавлен в очередь. Позиция: {queue_position+1}\n"
             f"⏳ Обработка начнется после завершения текущих задач.",
             disable_notification=True
         )
     else:
-        await message.answer(
+        status_msg = await message.answer(
             "🔄 Начинаю обработку вашего запроса...",
             disable_notification=True
         )
+
+    # Сохраняем сообщение о статусе в словарь
+    status_messages[message.from_user.id] = status_msg
 
 
 @video_router.message(F.text.regexp(r'^.*https:\/\/(?:m|www|vm)?\.?tiktok\.com\/((?:.*\b(?:('
@@ -219,17 +234,21 @@ async def tiktok_video(message: Message, bot: Bot):
         bot=bot
     )
 
-    if queue_position > 1:
-        await message.answer(
-            f"📋 Ваш запрос добавлен в очередь. Позиция: {queue_position}\n"
+    # Сохраняем сообщение о статусе для последующего удаления
+    if queue_position >= 1:
+        status_msg = await message.answer(
+            f"📋 Ваш запрос добавлен в очередь. Позиция: {queue_position+1}\n"
             f"⏳ Обработка начнется после завершения текущих задач.",
             disable_notification=True
         )
     else:
-        await message.answer(
+        status_msg = await message.answer(
             "🔄 Начинаю обработку вашего запроса...",
             disable_notification=True
         )
+
+    # Сохраняем сообщение о статусе в словарь
+    status_messages[message.from_user.id] = status_msg
 
 
 @video_router.message(F.text)
