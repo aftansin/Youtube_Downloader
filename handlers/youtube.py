@@ -2,6 +2,7 @@ import asyncio
 import os
 import shutil
 import time
+import uuid
 
 import yt_dlp
 from aiogram import Router, F, Bot
@@ -12,9 +13,57 @@ from hurry.filesize import size, alternative
 from db.requests import get_user
 from middlewares import RegistrationCheck
 
-
 video_router = Router()
 video_router.message.middleware(RegistrationCheck())
+
+# Глобальная очередь и статус обработки
+download_queue = asyncio.Queue()
+is_processing = False
+
+
+# Запускаем обработчик очереди при старте
+async def start_queue_processor():
+    """Запустить обработчик очереди"""
+    asyncio.create_task(process_queue())
+
+
+async def process_queue():
+    """Функция для обработки очереди"""
+    global is_processing
+
+    while True:
+        task_data = await download_queue.get()
+        is_processing = True
+
+        try:
+            await task_data['task_func'](*task_data['args'], **task_data['kwargs'])
+        except Exception as e:
+            if task_data.get('message'):
+                try:
+                    await task_data['message'].answer(f"❌ Ошибка обработки: {str(e)}")
+                except:
+                    pass
+        finally:
+            download_queue.task_done()
+            is_processing = False
+
+
+async def add_to_queue(task_func, *args, **kwargs):
+    """Добавление задачи в очередь"""
+    task_data = {
+        'task_func': task_func,
+        'args': args,
+        'kwargs': kwargs
+    }
+
+    # Если есть message в kwargs, добавляем его в task_data
+    if 'message' in kwargs:
+        task_data['message'] = kwargs['message']
+
+    await download_queue.put(task_data)
+
+    # Возвращаем позицию в очереди
+    return download_queue.qsize()
 
 
 async def get_file_size(url, user_resolution):
@@ -103,8 +152,8 @@ async def download_tiktok_video_async(url: str):
     return [file_name, file_info]
 
 
-@video_router.message(F.text.regexp(r'(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*'))
-async def youtube_video(message: Message, bot: Bot, db_session):
+async def youtube_video_processor(message: Message, bot: Bot, db_session):
+    """Обработчик для YouTube видео (будет вызываться из очереди)"""
     db_user = await get_user(message.from_user.id, db_session)
     url = message.text
     user_resolution = db_user.quality[:-1]  # user requested video resolution
@@ -120,19 +169,67 @@ async def youtube_video(message: Message, bot: Bot, db_session):
         file_path = file_info['requested_downloads'][0]['filepath']
         await send_video_to_user(file_info, file_name, file_path, message, status_msg, bot)
     else:
-        await message.answer(f'File is too large {size(filesize_approx, system=alternative)} ... Try to decrease quality.',
-                             disable_notification=True)
+        await message.answer(
+            f'File is too large {size(filesize_approx, system=alternative)} ... Try to decrease quality.',
+            disable_notification=True)
 
 
-@video_router.message(F.text.regexp(r'^.*https:\/\/(?:m|www|vm)?\.?tiktok\.com\/((?:.*\b(?:('
-                                    r'?:usr|v|embed|user|video)\/|\?shareId=|\&item_id=)(\d+))|\w+)'))
-async def tiktok_video(message: Message, bot: Bot):
+async def tiktok_video_processor(message: Message, bot: Bot):
+    """Обработчик для TikTok видео (будет вызываться из очереди)"""
     status_msg = await message.answer('⬇️ Downloading... Wait.', disable_notification=True)
     info = await download_tiktok_video_async(message.text)
     file_name = info[0]
     file_info = info[1]
     file_path = file_info['requested_downloads'][0]['filepath']
     await send_video_to_user(file_info, file_name, file_path, message, status_msg, bot)
+
+
+@video_router.message(F.text.regexp(r'(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*'))
+async def youtube_video(message: Message, bot: Bot, db_session):
+    """Обработчик сообщений YouTube"""
+    # Добавляем задачу в очередь
+    queue_position = await add_to_queue(
+        youtube_video_processor,
+        message=message,
+        bot=bot,
+        db_session=db_session
+    )
+
+    if queue_position > 1:
+        await message.answer(
+            f"📋 Ваш запрос добавлен в очередь. Позиция: {queue_position}\n"
+            f"⏳ Обработка начнется после завершения текущих задач.",
+            disable_notification=True
+        )
+    else:
+        await message.answer(
+            "🔄 Начинаю обработку вашего запроса...",
+            disable_notification=True
+        )
+
+
+@video_router.message(F.text.regexp(r'^.*https:\/\/(?:m|www|vm)?\.?tiktok\.com\/((?:.*\b(?:('
+                                    r'?:usr|v|embed|user|video)\/|\?shareId=|\&item_id=)(\d+))|\w+)'))
+async def tiktok_video(message: Message, bot: Bot):
+    """Обработчик сообщений TikTok"""
+    # Добавляем задачу в очередь
+    queue_position = await add_to_queue(
+        tiktok_video_processor,
+        message=message,
+        bot=bot
+    )
+
+    if queue_position > 1:
+        await message.answer(
+            f"📋 Ваш запрос добавлен в очередь. Позиция: {queue_position}\n"
+            f"⏳ Обработка начнется после завершения текущих задач.",
+            disable_notification=True
+        )
+    else:
+        await message.answer(
+            "🔄 Начинаю обработку вашего запроса...",
+            disable_notification=True
+        )
 
 
 @video_router.message(F.text)
